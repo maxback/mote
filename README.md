@@ -1,5 +1,5 @@
 
-MOTE - mais um temporizador (more one single engine)
+MOTE - mais um temporizador (more one time engine)
 
 Anotador de tempo criado inicialmente para desktop.
 O problema de ficar anotando o que você para então reportar aos outros ou cobrar de seu contratate é corriqueiro.
@@ -10,7 +10,7 @@ Manter compatibildiade de uso;
 Se puder não bagunce o código.
 
 
-MOTE - more one single engine
+MOTE - more one time engine
 Time annotator initially created for desktop.
 The problem of writing down what you have to then report to others or charge your contract is commonplace.
 Although there are many tools that do this, I decided to start this project. feel free to fork or contribute.
