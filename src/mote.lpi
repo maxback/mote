@@ -26,12 +26,15 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="LCL"/>
+        <PackageName Value="SynEdit"/>
       </Item1>
+      <Item2>
+        <PackageName Value="LCL"/>
+      </Item2>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="5">
       <Unit0>
         <Filename Value="mote.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -39,13 +42,30 @@
       <Unit1>
         <Filename Value="main.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="Form1"/>
+        <ComponentName Value="frmMain"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
         <Filename Value="api\message.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="uusercodeseditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmUserCodesEditor"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uUserCodesEditor"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="uitemframebase.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ItemFrameBase"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="uItemFrameBase"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
