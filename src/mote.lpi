@@ -47,8 +47,9 @@
         <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
-        <Filename Value="api\message.pas"/>
+        <Filename Value="api\umotemessage.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="uMoteMessage"/>
       </Unit2>
       <Unit3>
         <Filename Value="uusercodeseditor.pas"/>

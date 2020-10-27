@@ -22,7 +22,7 @@ type
 
   { TItemFrameBase }
 
-  TItemFrameBaseEvent = function(Sender: TObject; const psEvent; const poParam: TObject; const poResponse: TObject): boolean;
+  TItemFrameBaseEvent = function(Sender: TObject; const psEvent: string; const poParam: TObject; var poResponse: TObject): boolean of object;
 
   TItemFrameBase = class(TFrame)
     btnEditDescription: TBitBtn;
@@ -78,7 +78,7 @@ type
     property Time: string read FsTime write SetTime;
     property Description: string read FsDescription write SetDescription;
     property Working: boolean read FbWorking write SetWorking;
-    property Onvent: TItemFrameBaseEvent read FOnvent write SetOnvent;
+    property OnEvent: TItemFrameBaseEvent read FOnvent write SetOnvent;
     procedure Update; virtual;
     procedure AddControl(const psControlClassName: string; pslProperties: TStringList; const psUserCodeEventHandle: string);
     constructor Create(TheOwner: TComponent); override;
@@ -135,12 +135,14 @@ end;
 procedure TItemFrameBase.btnInitWorkClick(Sender: TObject);
 begin
   FbWorking := True;
+  DoOnvent('item_init_work', nil);
   Update;
 end;
 
 procedure TItemFrameBase.btnStopClick(Sender: TObject);
 begin
   FbWorking := False;
+  DoOnvent('item_stop', nil);
   Update;
 end;
 
@@ -185,7 +187,7 @@ end;
 function TItemFrameBase.InterruptWork: boolean;
 begin
   result := false;
-  if DoOnvent('interrupt', nil) and Assigned(FoEventResponseObject) and (FoEventResponseObject is TItemFrameBase) then
+  if DoOnvent('item_interrupt', nil) and Assigned(FoEventResponseObject) and (FoEventResponseObject is TItemFrameBase) then
   begin
      FoItemThatInterruptThis := FoEventResponseObject As TItemFrameBase;
      result := true;
@@ -243,20 +245,43 @@ begin
 end;
 
 procedure TItemFrameBase.Update;
+var
+  bUpdated: boolean;
 begin
+  bUpdated := (lblTitle.Caption <> FsTitle);
   lblTitle.Caption := FsTitle;
+
+  bUpdated := bUpdated or (edtTitle.Text <> FsTitle);
+  edtTitle.Text := FsTitle;
+
+  bUpdated := bUpdated or (lblTime.Caption <> FsTime);
   lblTime.Caption := FsTime;
+
+  bUpdated := bUpdated or (lblDescription.Caption <> FsDescription);
   lblDescription.Caption := FsDescription;
+
+  bUpdated := bUpdated or (lblExternalToolItem.Caption <> FsExternalToolItem);
   lblExternalToolItem.Caption := FsExternalToolItem;
+  edtExternalToolItem.Caption := FsExternalToolItem;
+
   btnInitWork.Visible := not FbWorking;
   btnInitUnexpectedWork.Visible := FbWorking;
   btnStop.Visible := FbWorking;
   gb.Caption := ' ';
 
+  if bUpdated then
+
+
   if FoParentItem <> nil then
+  begin
     gb.Caption := 'Filho de  ' + FoParentItem.title + '. ';
+    FoParentItem.Update;
+  end;
   if FoItemThatInterruptThis <> nil then
+  begin
     gb.Caption := 'Interrompido por ' + FoItemThatInterruptThis.Title;
+    FoItemThatInterruptThis.Update;
+  end;
 end;
 
 procedure TItemFrameBase.AddControl(const psControlClassName: string; pslProperties: TStringList; const psUserCodeEventHandle: string);

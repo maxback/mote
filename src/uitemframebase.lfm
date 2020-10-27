@@ -39,7 +39,7 @@ object ItemFrameBase: TItemFrameBase
       Left = 35
       Height = 15
       Top = 32
-      Width = 37
+      Width = 36
       Caption = 'lbTime'
       ParentColor = False
     end

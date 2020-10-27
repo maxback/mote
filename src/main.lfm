@@ -1,17 +1,18 @@
 object frmMain: TfrmMain
-  Left = 716
+  Left = 680
   Height = 499
-  Top = 251
+  Top = 148
   Width = 318
   Caption = 'MOTE'
   ClientHeight = 479
   ClientWidth = 318
   Menu = MainMenu
+  OnShow = FormShow
   LCLVersion = '2.0.10.0'
   object ScrollBoxMain: TScrollBox
     Left = 0
-    Height = 415
-    Top = 64
+    Height = 337
+    Top = 57
     Width = 318
     HorzScrollBar.Page = 1
     VertScrollBar.Page = 1
@@ -20,20 +21,37 @@ object frmMain: TfrmMain
   end
   object ControlBar1: TControlBar
     Left = 0
-    Height = 64
+    Height = 57
     Top = 0
     Width = 318
     Align = alTop
     TabOrder = 1
     OnClick = ControlBar1Click
     object cpbtnAddItem: TSpeedButton
-      Left = 2
-      Height = 60
-      Top = 2
-      Width = 71
+      Left = 13
+      Height = 37
+      Top = 9
+      Width = 40
       Action = acAddItem
-      Align = alLeft
     end
+  end
+  object ListBoxMessages: TListBox
+    Left = 0
+    Height = 80
+    Top = 399
+    Width = 318
+    Align = alBottom
+    ItemHeight = 0
+    TabOrder = 2
+  end
+  object Splitter1: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 5
+    Top = 394
+    Width = 318
+    Align = alBottom
+    ResizeAnchor = akBottom
   end
   object MainMenu: TMainMenu
     Left = 72
@@ -49,7 +67,6 @@ object frmMain: TfrmMain
       object miAddItem: TMenuItem
         Action = acAddItem
         Caption = '&Adicionar...'
-        OnClick = miAddItemClick
       end
     end
     object miTools: TMenuItem
