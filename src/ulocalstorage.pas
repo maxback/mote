@@ -40,7 +40,7 @@ TLocalStorage = class
 implementation
 
 uses
-  uDateIntervalDto;
+  uDateIntervalParamDto;
 
 { TLocalStorage }
 
@@ -94,7 +94,7 @@ var
   sId: string;
 begin
   sId := poItem.Id;
-  if sId.Length < 5 then
+  if Length(sId) < 5 then
     sId := 'invalid_id_' + FormatDatetime('yyyy-mm-dd-hh-mm-ss-nnn', now);
   result := FsFilesystemStorageDir+sId+'.json';
 end;

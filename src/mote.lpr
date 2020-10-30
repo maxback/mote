@@ -7,9 +7,9 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, datetimectrls, sysUtils, main, uMoteMessage, uUserCodesEditor,
+  Forms, sysUtils, main, uMoteMessage, uUserCodesEditor,
   uItemFrameBase, uTimeEngine, uMoteUtils, uLocalStorage, uEventDto, uItemDto,
-  uWeek, uItemFrameWeekCompact;
+  uWeek, uItemFrameWeekCompact, uDateIntervalParamDto;
 
 {$R *.res}
 var
@@ -20,7 +20,7 @@ var
 
 begin
   RequireDerivedFormResource:=True;
-  Application.Scaled:=True;
+  //Application.Scaled:=True;
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);
   Application.CreateForm(TfrmWeek, frmWeek);

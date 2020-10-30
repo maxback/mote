@@ -1,7 +1,7 @@
 object frmWeek: TfrmWeek
-  Left = 347
+  Left = 132
   Height = 654
-  Top = 42
+  Top = 140
   Width = 931
   Caption = 'frmWeek'
   ClientHeight = 654
@@ -9,7 +9,7 @@ object frmWeek: TfrmWeek
   OnClose = FormClose
   OnCreate = FormCreate
   OnResize = FormResize
-  LCLVersion = '2.0.10.0'
+  LCLVersion = '1.0.10.0'
   WindowState = wsMaximized
   object ListBoxMessages: TListBox
     Left = 0
@@ -18,7 +18,9 @@ object frmWeek: TfrmWeek
     Width = 931
     Align = alBottom
     ItemHeight = 0
+    ScrollWidth = 929
     TabOrder = 0
+    TopIndex = -1
   end
   object GroupBox: TGroupBox
     Left = 0
@@ -26,12 +28,12 @@ object frmWeek: TfrmWeek
     Top = 0
     Width = 931
     Align = alTop
-    ClientHeight = 53
+    ClientHeight = 69
     ClientWidth = 927
     TabOrder = 1
     object edtDate: TEdit
       Left = 16
-      Height = 23
+      Height = 27
       Top = 8
       Width = 80
       OnDblClick = edtDateDblClick
@@ -56,25 +58,25 @@ object frmWeek: TfrmWeek
       Width = 185
       Align = alLeft
       Caption = ' Segunda-Feira '
-      ClientHeight = 367
+      ClientHeight = 368
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 0
       object ScrollBox1: TScrollBox
         Left = 0
-        Height = 352
-        Top = 15
+        Height = 350
+        Top = 18
         Width = 181
-        HorzScrollBar.Page = 1
-        VertScrollBar.Page = 1
+        HorzScrollBar.Page = 181
+        VertScrollBar.Page = 350
         Align = alClient
         BorderStyle = bsNone
         TabOrder = 0
       end
       object Label1: TLabel
         Left = 0
-        Height = 15
+        Height = 18
         Top = 0
         Width = 181
         Align = alTop
@@ -89,25 +91,25 @@ object frmWeek: TfrmWeek
       Width = 185
       Align = alLeft
       Caption = ' Terça-Feira '
-      ClientHeight = 367
+      ClientHeight = 368
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 1
       object ScrollBox2: TScrollBox
         Left = 0
-        Height = 352
-        Top = 15
+        Height = 350
+        Top = 18
         Width = 181
-        HorzScrollBar.Page = 1
-        VertScrollBar.Page = 1
+        HorzScrollBar.Page = 181
+        VertScrollBar.Page = 350
         Align = alClient
         BorderStyle = bsNone
         TabOrder = 0
       end
       object Label2: TLabel
         Left = 0
-        Height = 15
+        Height = 18
         Top = 0
         Width = 181
         Align = alTop
@@ -122,25 +124,25 @@ object frmWeek: TfrmWeek
       Width = 185
       Align = alLeft
       Caption = ' Quarta-Feira '
-      ClientHeight = 367
+      ClientHeight = 368
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 2
       object ScrollBox3: TScrollBox
         Left = 0
-        Height = 352
-        Top = 15
+        Height = 350
+        Top = 18
         Width = 181
-        HorzScrollBar.Page = 1
-        VertScrollBar.Page = 1
+        HorzScrollBar.Page = 181
+        VertScrollBar.Page = 350
         Align = alClient
         BorderStyle = bsNone
         TabOrder = 0
       end
       object Label3: TLabel
         Left = 0
-        Height = 15
+        Height = 18
         Top = 0
         Width = 181
         Align = alTop
@@ -155,25 +157,25 @@ object frmWeek: TfrmWeek
       Width = 185
       Align = alLeft
       Caption = ' Quinta-Feira '
-      ClientHeight = 367
+      ClientHeight = 368
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 3
       object ScrollBox4: TScrollBox
         Left = 0
-        Height = 352
-        Top = 15
+        Height = 350
+        Top = 18
         Width = 181
-        HorzScrollBar.Page = 1
-        VertScrollBar.Page = 1
+        HorzScrollBar.Page = 181
+        VertScrollBar.Page = 350
         Align = alClient
         BorderStyle = bsNone
         TabOrder = 0
       end
       object Label4: TLabel
         Left = 0
-        Height = 15
+        Height = 18
         Top = 0
         Width = 181
         Align = alTop
@@ -188,25 +190,25 @@ object frmWeek: TfrmWeek
       Width = 185
       Align = alLeft
       Caption = ' Sexta-Feira '
-      ClientHeight = 367
+      ClientHeight = 368
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 4
       object ScrollBox5: TScrollBox
         Left = 0
-        Height = 352
-        Top = 15
+        Height = 350
+        Top = 18
         Width = 181
-        HorzScrollBar.Page = 1
-        VertScrollBar.Page = 1
+        HorzScrollBar.Page = 181
+        VertScrollBar.Page = 350
         Align = alClient
         BorderStyle = bsNone
         TabOrder = 0
       end
       object Label5: TLabel
         Left = 0
-        Height = 15
+        Height = 18
         Top = 0
         Width = 181
         Align = alTop

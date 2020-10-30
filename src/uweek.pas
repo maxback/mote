@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  DateTimePicker, uMoteMessage, uEventDto, uItemDto,
-  uDateIntervalDto, uItemFrameWeekCompact;
+  uMoteMessage, uEventDto, uItemDto,
+  uDateIntervalParamDto, uItemFrameWeekCompact;
 
 type
 
@@ -119,7 +119,7 @@ begin
   FnContador := FnContador + 1;
 
   FoLastFrameInserted := TItemFrameWeekCompact.Create(poScrollBox);
-  FoLastFrameInserted.Name := 'Item_' + FnContador.ToString();
+  FoLastFrameInserted.Name := 'Item_' + IntToStr(FnContador);
   FoLastFrameInserted.Parent := poScrollBox;
   FoLastFrameInserted.OnEvent:=@ItemFrameBaseEvent;
 

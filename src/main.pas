@@ -198,7 +198,7 @@ begin
   FnContador := FnContador + 1;
 
   FoLastFrameInserted := TItemFrameBase.Create(ScrollBoxMain);
-  FoLastFrameInserted.Name := 'Item_' + FnContador.ToString();
+  FoLastFrameInserted.Name := 'Item_' + IntToStr(FnContador);
   FoLastFrameInserted.Parent := ScrollBoxMain;
   FoLastFrameInserted.OnEvent:=@ItemFrameBaseEvent;
 
@@ -269,7 +269,7 @@ begin
     FnContador := FnContador + 1;
 
     FoLastFrameInserted := TItemFrameBase.Create(ScrollBoxMain);
-    FoLastFrameInserted.Name := 'Item_' + FnContador.ToString();
+    FoLastFrameInserted.Name := 'Item_' + IntToStr(FnContador);
     FoLastFrameInserted.Parent := ScrollBoxMain;
 
     FoLastFrameInserted.Id := GetNewId;
