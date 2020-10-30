@@ -29,27 +29,14 @@ object frmWeek: TfrmWeek
     ClientHeight = 53
     ClientWidth = 927
     TabOrder = 1
-    object DateTimePicker: TDateTimePicker
-      Left = 8
+    object edtDate: TEdit
+      Left = 16
       Height = 23
-      Top = 10
-      Width = 83
-      CenturyFrom = 1941
-      MaxDate = 2958465
-      MinDate = -53780
+      Top = 8
+      Width = 80
+      OnDblClick = edtDateDblClick
+      OnExit = LoadWeek
       TabOrder = 0
-      TrailingSeparator = False
-      TextForNullDate = 'NULL'
-      LeadingZeros = True
-      Kind = dtkDate
-      TimeFormat = tf24
-      TimeDisplay = tdHMS
-      DateMode = dmComboBox
-      Date = 44133
-      UseDefaultSeparators = True
-      HideDateTimeParts = []
-      MonthNames = 'Long'
-      OnChange = DateTimePickerChange
     end
   end
   object Panel: TPanel

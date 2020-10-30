@@ -15,7 +15,7 @@ type
 
   TfrmWeek = class(TForm)
     Button1: TButton;
-    DateTimePicker: TDateTimePicker;
+    edtDate: TEdit;
     GroupBox: TGroupBox;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
@@ -36,7 +36,8 @@ type
     ScrollBox5: TScrollBox;
     Splitter1: TSplitter;
     procedure Button1Click(Sender: TObject);
-    procedure DateTimePickerChange(Sender: TObject);
+    procedure edtDateDblClick(Sender: TObject);
+    procedure LoadWeek(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -287,16 +288,17 @@ begin
   end;
 end;
 
-procedure TfrmWeek.DateTimePickerChange(Sender: TObject);
+procedure TfrmWeek.LoadWeek(Sender: TObject);
 var
-  dts, dte, dt: TDateTime;
+  dtUser, dts, dte, dt: TDateTime;
   i, nDayOfW, nDiff: integer;
   oInterval: TDateIntervalDto;
 begin
-  nDayOfW := DayOfWeek(DateTimePicker.Date);
+  dtUser := StrToDate(edtDate.Text);
+  nDayOfW := DayOfWeek(dtUser);
   nDiff := nDayOfW - 2;
 
-  dt := DateTimePicker.Date - nDiff;
+  dt := dtUser - nDiff;
   dts := dt;
   for i := Low(FaDates) to High(FaDates) do
   begin
@@ -322,6 +324,12 @@ end;
 procedure TfrmWeek.Button1Click(Sender: TObject);
 begin
   ListBoxMessages.Clear;
+end;
+
+procedure TfrmWeek.edtDateDblClick(Sender: TObject);
+begin
+  edtDate.Text:=FormatDateTime('dd/mm/yyyy', now);
+  LoadWeek(Sender);
 end;
 
 procedure TfrmWeek.FormClose(Sender: TObject; var CloseAction: TCloseAction);
