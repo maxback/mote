@@ -1,7 +1,7 @@
 object frmUserCodesEditor: TfrmUserCodesEditor
-  Left = 423
+  Left = 302
   Height = 582
-  Top = 132
+  Top = 95
   Width = 872
   Align = alTop
   Caption = 'Códigos de usuário'

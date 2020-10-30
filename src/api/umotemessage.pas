@@ -14,12 +14,12 @@ type
 
   TMoteMessageError = Exception;
 
-  TMoteMessage = class(TObject)
+  TMoteMessage = class(TPersistent)
   private
     FsOrign: AnsiString;
     FsTopic: AnsiString;
     FsPayload: AnsiString;
-  public
+  published
     property Orign: AnsiString read FsOrign;
     property Topic: AnsiString read FsTopic;
     property Payload: AnsiString read FsPayload;
@@ -48,12 +48,15 @@ type
     FoIncommingQueue: TMoteMessageList;
     FnMaxIncommingQueueSize: integer;
     FoOnMessage: TMoteMessageClientMessageEvent;
+    FoOnPublish: TMoteMessageClientMessageEvent;
     FoMessageBus: TMoteMessageBus;
     FslSuportedTopics: TStringList;
   public
     property MessageBus: TMoteMessageBus read FoMessageBus write FoMessageBus;
     property IncommingQueue: TMoteMessageList read FoIncommingQueue;
     property OnMessage: TMoteMessageClientMessageEvent read FoOnMessage write FoOnMessage;
+    property OnPublish: TMoteMessageClientMessageEvent read FoOnPublish write FoOnPublish;
+    property Orign: AnsiString read FsOrign;
 
     //to bus test if a especifc topic will by add on current object
     function TestTopicSuported(const psTopic: AnsiString): boolean;
@@ -61,14 +64,14 @@ type
     //this means that the topc suported will return true in TestTopicSuported()
     procedure Subscribe(const psTopic: AnsiString);
     //this means that the toct suported will return true in TestTopicSuported()
-    procedure uNSubscribe(const psTopic: AnsiString);
+    procedure UnSubscribe(const psTopic: AnsiString);
     function getMessage: TMoteMessage;
     procedure Publish(const psTopic: AnsiString; const psPayload: AnsiString); overload;
     procedure Publish(const poMessage: TMoteMessage); overload;
 
     procedure Receive(const poMessage: TMoteMessage);
 
-    constructor Create(const Orign: AnsiString; const pnMaxIncommingQueueSize: integer);
+    constructor Create(const psOrign: AnsiString; const pnMaxIncommingQueueSize: integer);
     destructor Destroy; override;
 
   end;
@@ -90,6 +93,9 @@ type
   end;
 
 implementation
+
+uses
+  uMoteUtils;
 
 { TMoteMessageBus }
 
@@ -115,6 +121,8 @@ begin
   for i := 0 to FoMessageClientList.Count-1 do
   begin
     try
+      if FoMessageClientList.Items[i].Orign = poMessage.Orign then
+        continue;
       if FoMessageClientList.Items[i].TestTopicSuported(poMessage.Topic) then
       begin
         oMessage := TMoteMessage.CreateCopy(poMessage);
@@ -168,8 +176,7 @@ end;
 
 function TMoteMessage.ToString: string;
 begin
-  Result := Format('{"orign": "%s", "topic": "%s", "payload": "%s"}',
-   [FsOrign, FsTopic, FsPayload]);
+  Result := ConvertObjectToJSONString(self);
 end;
 
 { TMoteMessageClient }
@@ -206,13 +213,9 @@ procedure TMoteMessageClient.Publish(const psTopic: AnsiString;
 var
   oMessage: TMoteMessage;
 begin
-  if not Assigned(FoMessageBus) then
-    TMoteMessageError.CreateFmt('Não é possível publicar a mensagem do tópico "%s" pois o cliente está desconectado do barramento. Payload: "%s".',
-      [psTopic, psPayload]);
-
   oMessage := TMoteMessage.Create(FsOrign, psTopic, psPayload);
   try
-    FoMessageBus.Publish(oMessage);
+    Publish(oMessage);
   finally
     oMessage.Free;
   end;
@@ -223,7 +226,8 @@ begin
   if not Assigned(FoMessageBus) then
     TMoteMessageError.CreateFmt('Não é possível publicar a mensagem do tópico "%s" pois o cliente está desconectado do barramento. Payload: "%s".',
       [poMessage.Topic, poMessage.Payload]);
-
+  if Assigned(FoOnPublish) then
+    FoOnPublish(Self, poMessage);
   FoMessageBus.Publish(poMessage);
 end;
 
@@ -237,13 +241,13 @@ begin
     exit;
 
   FoOnMessage(Self, poMessage);
-  FoIncommingQueue.Delete(FoIncommingQueue.Count-1);
+  FoIncommingQueue.Remove(poMessage);
 end;
 
-constructor TMoteMessageClient.Create(const Orign: AnsiString;
+constructor TMoteMessageClient.Create(const psOrign: AnsiString;
   const pnMaxIncommingQueueSize: integer);
 begin
-  FsOrign := Orign;
+  FsOrign := psOrign;
   FoIncommingQueue := TMoteMessageList.Create(false);
   FnMaxIncommingQueueSize := pnMaxIncommingQueueSize;
   FslSuportedTopics := TStringList.Create;
