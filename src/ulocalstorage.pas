@@ -10,10 +10,12 @@ uses
 type
 
 { TLocalStorage }
-
+TLocalStorageKind = (lskData, lskSettings);
 TLocalStorage = class
   private
+    FsItemName: string;
     FsFilesystemStorageDir: string;
+    FenKind: TLocalStorageKind;
     FslLastQueryResult: TStringList;
     FoMessageClient: TMoteMessageClient;
     procedure AppMessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
@@ -33,7 +35,8 @@ TLocalStorage = class
     procedure DeleteItem(const poItem: TItemDto);
   public
     property MessageClient: TMoteMessageClient read GetMessageClient write SetMessageClient;
-    constructor Create(const psFilesystemStorageDir: string);
+    constructor Create(const psFilesystemStorageDir: string;
+      const psItemName: string; const penKind: TLocalStorageKind);
     destructor Destroy; override;
   end;
 
@@ -80,7 +83,13 @@ begin
     if e.event = 'create' then
     begin
       //load all data for today
-      QueryByDate(Date, Date, true);
+      if FenKind = lskData then
+        QueryByDate(Date, Date, true)
+      else
+      if FenKind = lskSettings then
+        QueryAllItem
+      else
+        exit;
       SendMessagesForLastQueryResult;
     end;
 
@@ -148,11 +157,11 @@ begin
   oItem := TItemDto.CreateFromJSON(e.payload);
   try
     //check the action to create or update data
-    if e.event = 'item_create' then
+    if e.event = FsItemName + '_create' then
        InsertItem(oItem);
-    if e.event = 'item_update' then
+    if e.event = FsItemName + '_update' then
        UpdateItem(oItem);
-    if e.event = 'item_delete' then
+    if e.event = FsItemName + '_delete' then
        DeleteItem(oItem);
   finally
     oItem.Free;
@@ -165,11 +174,10 @@ procedure TLocalStorage.MessageEvent(Sender: Tobject;
 begin
   //if poMessage.Orign = FoMessageClient.Orign then
   //  exit;
-  FoMessageClient.Publish('debug', '{"event": "TLocalStorage.MessageEvent", "message": '+poMessage.ToString+'}');
   try
   if poMessage.Orign = 'app' then
     AppMessageEvent(Sender, poMessage);
-  if poMessage.Topic = 'item' then
+  if poMessage.Topic = FsItemName then
     ItemMessageEvent(Sender, poMessage)
   else
     DefaultMessageEvent(Sender, poMessage)
@@ -177,7 +185,7 @@ begin
 
   except
     on e:exception do
-      FoMessageClient.Publish('debug', '{"event": "exception", "value": "'+E.Message+'"}');
+      FoMessageClient.Publish('error', '{"event": "exception", "method": "MessageEvent", "value": "'+E.Message+'"}');
   end;
 end;
 
@@ -249,9 +257,9 @@ begin
     for i:=0 to FslLastQueryResult.Count-1 do
     begin
       sl.LoadFromFile(FsFilesystemStorageDir+FslLastQueryResult[i]);
-      e.event := 'item_restore';
+      e.event := FsItemName + '_restore';
       e.payload:=sl.Text;
-      FoMessageClient.Publish('item', e.ToString);
+      FoMessageClient.Publish(FsItemName, e.ToString);
     end;
   finally
     e.Free;
@@ -296,16 +304,18 @@ begin
     FoMessageClient.OnMessage := @MessageEvent;
     FoMessageClient.Subscribe('*');
 
-    FoMessageClient.Publish('debug', '{"event": "TLocalStorage.SetMessageClient"}');
   end;
 end;
 
 
-constructor TLocalStorage.Create(const psFilesystemStorageDir: string);
+constructor TLocalStorage.Create(const psFilesystemStorageDir: string;
+  const psItemName: string; const penKind: TLocalStorageKind);
 begin
   inherited Create;
   FoMessageClient := nil;
   FsFilesystemStorageDir := psFilesystemStorageDir;
+  FsItemName := psItemName;
+  FenKind := penKind;
   FslLastQueryResult := TStringList.Create;
 end;
 

@@ -52,6 +52,7 @@ type
     procedure MessagePublish(Sender: Tobject; const poMessage: TMoteMessage);
     function ItemFrameBaseEvent(Sender: TObject; const psEvent: string; const poParam: TObject; var poResponse: TObject): boolean;
     procedure TimerTimer(Sender: TObject);
+    function FindItemGui(const psJSONItem: string): TItemFrameBase;
   private
     FnContador: integer;
     FoMessageClient: TMoteMessageClient;
@@ -194,7 +195,17 @@ end;
 
 
 procedure TfrmMain.AddItemToGui(const psJSONItem: string);
+
+  var
+  oFrame: TItemFrameBase;
 begin
+  FoLastFrameInserted := FindItemGui(psJSONItem);
+  if FoLastFrameInserted <> nil then
+  begin
+    FoLastFrameInserted.UpdateFromJSON(psJSONItem);
+    exit;
+  end;
+
   FnContador := FnContador + 1;
 
   FoLastFrameInserted := TItemFrameBase.Create(ScrollBoxMain);
@@ -203,56 +214,57 @@ begin
   FoLastFrameInserted.OnEvent:=@ItemFrameBaseEvent;
 
   FoLastFrameInserted.UpdateFromJSON(psJSONItem);
+  //temp. action: hide itens for other dates
+  if (FoLastFrameInserted.Item.TimeIntervals <> '') and (Pos(FormatDateTime('dd/mm/yyyy', Date), FoLastFrameInserted.Item.TimeIntervals) < 1) then
+    FoLastFrameInserted.Visible:=false;
+end;
+
+function TfrmMain.FindItemGui(const psJSONItem: string): TItemFrameBase;
+var
+  i: integer;
+  oItem: TItemDto;
+begin
+  result := nil;
+  oItem := TItemDto.CreateFromJSON(psJSONItem);
+  try
+  for i := 0 to ScrollBoxMain.ComponentCount-1 do
+  begin
+    if ScrollBoxMain.Components[i] is TItemFrameBase then
+    begin
+      if (ScrollBoxMain.Components[i] as TItemFrameBase).Item.Id =  oItem.Id then
+      begin
+        result := ScrollBoxMain.Components[i] as TItemFrameBase;
+        exit;
+      end;
+    end;
+  end;
+  finally
+    oItem.Free;
+  end;
 end;
 
 
 procedure TfrmMain.UpdateItemToGui(const psJSONItem: string);
 var
-  i: integer;
-  oItem: TItemDto;
+  oFrame: TItemFrameBase;
 begin
-  oItem := TItemDto.CreateFromJSON(psJSONItem);
-  try
-  for i := 0 to ScrollBoxMain.ComponentCount-1 do
-  begin
-    if ScrollBoxMain.Components[i] is TItemFrameBase then
-    begin
-      if (ScrollBoxMain.Components[i] as TItemFrameBase).Item.Id =  oItem.Id then
-      begin
-        (ScrollBoxMain.Components[i] as TItemFrameBase).UpdateFromJSON(psJSONItem);
-      end;
-    end;
-  end;
-  finally
-    oItem.Free;
-  end;
+  oFrame := FindItemGui(psJSONItem);
+  if oFrame <> nil then
+    oFrame.UpdateFromJSON(psJSONItem);
 end;
 
 procedure TfrmMain.DeleteItemToGui(const psJSONItem: string);
 var
-  i: integer;
-  oItem: TItemDto;
   oControl: TControl;
+  oFrame: TItemFrameBase;
 begin
-  oItem := TItemDto.CreateFromJSON(psJSONItem);
-  try
-  for i := 0 to ScrollBoxMain.ComponentCount-1 do
-  begin
-    if ScrollBoxMain.Components[i] is TItemFrameBase then
-    begin
-      if (ScrollBoxMain.Components[i] as TItemFrameBase).Item.Id =  oItem.Id then
-      begin
-        oControl := ScrollBoxMain.Components[i] as TControl;
-        ScrollBoxMain.RemoveControl(oControl);
-        oControl.Parent := nil;
-        (oControl As TItemFrameBase).Free;
-        break;
-      end;
-    end;
-  end;
-  finally
-    oItem.Free;
-  end;
+  oFrame := FindItemGui(psJSONItem);
+  if oFrame = nil then
+    exit;
+  oControl := oFrame As TControl;
+  ScrollBoxMain.RemoveControl(oControl);
+  oControl.Parent := nil;
+  (oControl As TItemFrameBase).Free;
 end;
 
 
@@ -273,6 +285,9 @@ begin
     FoLastFrameInserted.Parent := ScrollBoxMain;
 
     FoLastFrameInserted.Id := GetNewId;
+    FoLastFrameInserted.CreatedBy:=GetCurrentUserName;
+    FoLastFrameInserted.UserName:=GetCurrentUserName;
+
     FoLastFrameInserted.Title:=s;
     FoLastFrameInserted.Description:='';
     FoLastFrameInserted.OnEvent:=@ItemFrameBaseEvent;

@@ -6,14 +6,16 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  uMoteMessage, uEventDto, uItemDto,
-  uDateIntervalParamDto, uItemFrameWeekCompact;
+  Buttons, uMoteMessage, uEventDto, uItemDto, uDateIntervalParamDto,
+  uItemFrameWeekCompact;
 
 type
 
   { TfrmWeek }
 
   TfrmWeek = class(TForm)
+    btnPrevWeek: TBitBtn;
+    btnNextWeek: TBitBtn;
     Button1: TButton;
     edtDate: TEdit;
     GroupBox: TGroupBox;
@@ -35,7 +37,10 @@ type
     ScrollBox4: TScrollBox;
     ScrollBox5: TScrollBox;
     Splitter1: TSplitter;
+    procedure btnNextWeekClick(Sender: TObject);
+    procedure btnPrevWeekClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure edtDateChange(Sender: TObject);
     procedure edtDateDblClick(Sender: TObject);
     procedure LoadWeek(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -44,6 +49,7 @@ type
     procedure gbClick(Sender: TObject);
     procedure PanelClick(Sender: TObject);
   private
+    FdtStart, FdtEnd: TDateTime;
     FnContador: integer;
     FoMessageClient: TMoteMessageClient;
     FoLastFrameInserted: TItemFrameWeekCompact;
@@ -61,9 +67,9 @@ type
     procedure UpdateItemToGui(const psJSONItem: string);
     function GetMessageClient: TMoteMessageClient;
     procedure SetMessageClient(AValue: TMoteMessageClient);
-
+    procedure SelectWeek;
     function ItemFrameBaseEvent(Sender: TObject; const psEvent: string; const poParam: TObject; var poResponse: TObject): boolean;
-
+    procedure UpdateDateArray;
   public
     property MessageClient: TMoteMessageClient read GetMessageClient write SetMessageClient;
     procedure Show;
@@ -288,29 +294,15 @@ begin
   end;
 end;
 
-procedure TfrmWeek.LoadWeek(Sender: TObject);
+
+procedure TfrmWeek.SelectWeek;
 var
-  dtUser, dts, dte, dt: TDateTime;
-  i, nDayOfW, nDiff: integer;
   oInterval: TDateIntervalDto;
 begin
-  dtUser := StrToDate(edtDate.Text);
-  nDayOfW := DayOfWeek(dtUser);
-  nDiff := nDayOfW - 2;
-
-  dt := dtUser - nDiff;
-  dts := dt;
-  for i := Low(FaDates) to High(FaDates) do
-  begin
-    FaDates[i] := dt;
-    dte := dt;
-    dt := dt + 1;
-  end;
-
   if Assigned(FoMessageClient) then
   begin
     ClearAllItems;
-    oInterval := TDateIntervalDto.CreateInterval(dts, dte);
+    oInterval := TDateIntervalDto.CreateInterval(FdtStart, FdtEnd);
     try
       AjustGroupBoxDayOfWeek(oInterval);
       FoMessageClient.Publish('date_interval_select', oInterval.ToString);
@@ -321,9 +313,65 @@ begin
 
 end;
 
+procedure TfrmWeek.UpdateDateArray;
+var
+  i: integer;
+  dt: TDateTime;
+begin
+  dt := FdtStart;
+  for i := Low(FaDates) to High(FaDates) do
+  begin
+    FaDates[i] := dt;
+    FdtEnd := dt;
+    dt := dt + 1;
+  end;
+end;
+
+procedure TfrmWeek.LoadWeek(Sender: TObject);
+var
+  dtUser, dt: TDateTime;
+  nDayOfW, nDiff: integer;
+begin
+  dtUser := StrToDate(edtDate.Text);
+  nDayOfW := DayOfWeek(dtUser);
+  nDiff := nDayOfW - 2;
+
+  dt := dtUser - nDiff;
+  FdtStart := dt;
+
+  UpdateDateArray;
+
+  btnPrevWeek.Enabled:=true;
+  btnNextWeek.Enabled:=true;
+
+  SelectWeek;
+end;
+
 procedure TfrmWeek.Button1Click(Sender: TObject);
 begin
   ListBoxMessages.Clear;
+end;
+
+procedure TfrmWeek.btnPrevWeekClick(Sender: TObject);
+begin
+  FdtStart:=FdtStart-7;
+  UpdateDateArray;
+  edtDate.Text:=FormatDateTime('dd/mm/yyyy', FdtStart);
+  SelectWeek;
+end;
+
+procedure TfrmWeek.btnNextWeekClick(Sender: TObject);
+begin
+  FdtStart:=FdtStart+7;
+  UpdateDateArray;
+  edtDate.Text:=FormatDateTime('dd/mm/yyyy', FdtStart);
+  SelectWeek;
+
+end;
+
+procedure TfrmWeek.edtDateChange(Sender: TObject);
+begin
+
 end;
 
 procedure TfrmWeek.edtDateDblClick(Sender: TObject);

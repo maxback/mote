@@ -46,6 +46,8 @@ type
     function GetTimeIntervals: TStrings;
     function GetTitle: string;
     function GetWorking: boolean;
+    function GetUserName: string;
+    function GetCreatedBy: string;
     procedure SetDescription(AValue: string);
     procedure SetExternalToolItem(AValue: string);
     procedure SetId(AValue: string);
@@ -55,6 +57,9 @@ type
     procedure SetTimeIntervals(AValue: TStrings);
     procedure SetTitle(AValue: string);
     procedure SetWorking(AValue: boolean);
+    procedure SetUserName(AValue: string);
+    procedure SetCreatedBy(AValue: string);
+
   protected
     FoEventResponseObject: TObject;
     function InterruptWork: boolean; virtual;
@@ -68,6 +73,9 @@ type
     property Description: string read GetDescription write SetDescription;
     property Working: boolean read GetWorking write SetWorking;
     property TimeIntervals: TStrings read GetTimeIntervals write SetTimeIntervals;
+    property UserName: string read GetUserName write SetUserName;
+    property CreatedBy: string read GetCreatedBy write SetCreatedBy;
+
     property OnEvent: TItemFrameBaseEvent read FOnvent write SetOnvent;
 
     property Item: TItemDto read FoItem write FoItem;
@@ -128,6 +136,16 @@ end;
 function TItemFrameWeekCompact.GetWorking: boolean;
 begin
   result := FoItem.Working;
+end;
+
+function TItemFrameWeekCompact.GetUserName: string;
+begin
+  Result:=FoItem.UserName;
+end;
+
+function TItemFrameWeekCompact.GetCreatedBy: string;
+begin
+  Result:=FoItem.CreatedBy;
 end;
 
 procedure TItemFrameWeekCompact.SetDescription(AValue: string);
@@ -198,6 +216,16 @@ begin
     Exit;
   FoItem.Working := AValue;
   Update(true);
+end;
+
+procedure TItemFrameWeekCompact.SetUserName(AValue: string);
+begin
+  FoItem.UserName:=AValue;
+end;
+
+procedure TItemFrameWeekCompact.SetCreatedBy(AValue: string);
+begin
+  FoItem.CreatedBy:=AValue;
 end;
 
 function TItemFrameWeekCompact.InterruptWork: boolean;

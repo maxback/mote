@@ -20,6 +20,8 @@ type
     FbWorking: boolean;
     FsTimeIntervals: string;
     FsParentItemId: string;
+    FsUserName: string;
+    FsCreatedBy: string;
   published
     property Id: string read FsId write FsId;
     property ExternalToolItem: string read FsExternalToolItem write FsExternalToolItem;
@@ -29,6 +31,8 @@ type
     property Description: string read FsDescription write FsDescription;
     property Working: boolean read FbWorking write FbWorking;
     property TimeIntervals: string read FsTimeIntervals write FsTimeIntervals;
+    property UserName: string read FsUserName write FsUserName;
+    property CreatedBy: string read FsCreatedBy write FsCreatedBy;
 
     function ToString: string; override;
     constructor Create; overload;

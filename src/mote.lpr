@@ -13,9 +13,10 @@ uses
 
 {$R *.res}
 var
-  mcgui, mcte, mcls, mcapp, mcweek: TMoteMessageClient;
+  mcgui, mcte, mclsi, mclss, mcapp, mcweek: TMoteMessageClient;
   te: TTimeEngine;
-  ls: TLocalStorage;
+  lsi: TLocalStorage;
+  lss: TLocalStorage;
   mb: TMoteMessageBus;
 
 begin
@@ -26,13 +27,15 @@ begin
   Application.CreateForm(TfrmWeek, frmWeek);
 
   te := TTimeEngine.Create;
-  ls := TLocalStorage.Create(ExtractFilePath(ParamStr(0))+'localstorage'+PathDelim+'items'+PathDelim);
+  lsi := TLocalStorage.Create(ExtractFilePath(ParamStr(0))+'localstorage'+PathDelim+'items'+PathDelim, 'item', lskData);
+  lss := TLocalStorage.Create(ExtractFilePath(ParamStr(0))+'localstorage'+PathDelim+'settings'+PathDelim, 'setting', lskSettings);
 
   //Application.CreateForm(TfrmUserCodesEditor, frmUserCodesEditor);
   mcapp := TMoteMessageClient.Create('app', 1024);
   mcgui := TMoteMessageClient.Create('gui', 1024);
   mcte := TMoteMessageClient.Create('time_engine', 1024);
-  mcls := TMoteMessageClient.Create('local_storage', 1024);
+  mclsi := TMoteMessageClient.Create('local_storage', 1024);
+  mclss := TMoteMessageClient.Create('local_storage_settings', 1024);
   mcweek := TMoteMessageClient.Create('gui_week', 1024);
 
   mb := TMoteMessageBus.Create;
@@ -40,14 +43,16 @@ begin
     mb.Add(mcapp);
     mb.Add(mcgui);
     mb.Add(mcte);
-    mb.Add(mcls);
+    mb.Add(mclss);
+    mb.Add(mclsi);
     mb.Add(mcweek);
 
 
     mcapp.Subscribe('*');
 
     te.MessageClient:=mcte;
-    ls.MessageClient:=mcls;
+    lsi.MessageClient:=mclsi;
+    lss.MessageClient:=mclss;
 
     frmMain.MessageClient := mcgui;
     mcgui.Subscribe('*');
@@ -60,11 +65,13 @@ begin
     Application.Run;
   finally
     frmMain.MessageClient := nil;
-    ls.Free;
+    lss.Free;
+    lsi.Free;
     te.Free;
 
     mcweek.Free;
-    mcls.Free;
+    mclss.Free;
+    mclsi.Free;
     mcte.Free;
     mcgui.Free;
     mcapp.Free;

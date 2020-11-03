@@ -81,6 +81,8 @@ type
     function GetTimeIntervals: TStrings;
     function GetTitle: string;
     function GetWorking: boolean;
+    function GetUserName: string;
+    function GetCreatedBy: string;
     procedure SetDescription(AValue: string);
     procedure SetExternalToolItem(AValue: string);
     procedure SetId(AValue: string);
@@ -90,6 +92,8 @@ type
     procedure SetTimeIntervals(AValue: TStrings);
     procedure SetTitle(AValue: string);
     procedure SetWorking(AValue: boolean);
+    procedure SetUserName(AValue: string);
+    procedure SetCreatedBy(AValue: string);
   protected
     FoEventResponseObject: TObject;
     function InterruptWork: boolean; virtual;
@@ -104,6 +108,9 @@ type
     property Working: boolean read GetWorking write SetWorking;
     property TimeIntervals: TStrings read GetTimeIntervals write SetTimeIntervals;
     property OnEvent: TItemFrameBaseEvent read FOnvent write SetOnvent;
+    property UserName: string read GetUserName write SetUserName;
+    property CreatedBy: string read GetCreatedBy write SetCreatedBy;
+
 
     property Item: TItemDto read FoItem write FoItem;
 
@@ -314,6 +321,11 @@ begin
   Update(true);
 end;
 
+procedure TItemFrameBase.SetUserName(AValue: string);
+begin
+  FoItem.UserName:=AValue;
+end;
+
 procedure TItemFrameBase.SetWorking(AValue: boolean);
 begin
   if FoItem.Working = AValue then
@@ -373,6 +385,11 @@ begin
   result := FoItem.Description;
 end;
 
+function TItemFrameBase.GetCreatedBy: string;
+begin
+  result := FoItem.CreatedBy;
+end;
+
 function TItemFrameBase.GetExternalToolItem: string;
 begin
   result := FoItem.ExternalToolItem;
@@ -388,6 +405,11 @@ begin
   result := FoParentItem;
 end;
 
+function TItemFrameBase.GetUserName: string;
+begin
+  result := FoItem.UserName;
+end;
+
 function TItemFrameBase.GetTime: string;
 begin
   result := FoItem.Time;
@@ -401,6 +423,11 @@ end;
 function TItemFrameBase.GetWorking: boolean;
 begin
   result := FoItem.Working;
+end;
+
+procedure TItemFrameBase.SetCreatedBy(AValue: string);
+begin
+  FoItem.CreatedBy := AValue;
 end;
 
 procedure TItemFrameBase.SetExternalToolItem(AValue: string);
