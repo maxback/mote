@@ -6,7 +6,12 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Buttons, Grids, ComCtrls,
-  Dialogs, uItemDto;
+  Dialogs, ExtCtrls, uItemDto;
+
+{$J+}
+const
+  nMAX_TIMES_SIZE_FRAME: integer = 5;
+{$J-}
 
 type
 
@@ -28,7 +33,9 @@ type
     const poParam: TObject; var poResponse: TObject): boolean of object;
 
   TItemFrameBase = class(TFrame)
+    btnChangeSizeLess: TBitBtn;
     btnEditDescription: TBitBtn;
+    edtPutOkOnItemInterval: TBitBtn;
     edtEditTimeInterval: TBitBtn;
     edtOptions: TBitBtn;
     btnEditTitle: TBitBtn;
@@ -38,6 +45,7 @@ type
     btnInitUnexpectedWork: TBitBtn;
     edtExternalToolItem: TEdit;
     edtDeleteTimeInterval: TBitBtn;
+    btnChangeSizePluss: TBitBtn;
     edtTitle: TEdit;
     gb: TGroupBox;
     lblTime: TLabel;
@@ -46,7 +54,13 @@ type
     lblTitle: TLabel;
     lbTime: TListBox;
     mmDescription: TMemo;
+    mmTimeOfLabel: TMemo;
+    procedure btnChangeSizeLessClick(Sender: TObject);
+    procedure btnChangeSizePlussClick(Sender: TObject);
+    procedure btnEditDescExternalClick(Sender: TObject);
     procedure btnEditDescriptionClick(Sender: TObject);
+    procedure edtPutOkOnItemIntervalClick(Sender: TObject);
+    procedure lbDescriptionDbClick(Sender: TObject);
     procedure btnEditDescriptionExit(Sender: TObject);
     procedure btnEditExternalToolItemClick(Sender: TObject);
     procedure btnEditTitleClick(Sender: TObject);
@@ -60,15 +74,18 @@ type
     procedure edtTitleEditingDone(Sender: TObject);
     procedure edtTitleExit(Sender: TObject);
     procedure FrameExit(Sender: TObject);
+    procedure lblTimeDblClick(Sender: TObject);
     procedure lbTimeClick(Sender: TObject);
     procedure lbTimeDblClick(Sender: TObject);
     procedure lbTimeExit(Sender: TObject);
+    procedure mmDescriptionDblClick(Sender: TObject);
     procedure mmDescriptionExit(Sender: TObject);
+    procedure mmTimeOfLabelExit(Sender: TObject);
     procedure TratarMouseSobreTextos(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
   private
+    FnOriginalHeight: integer;
     FoItem: TItemDto;
-
     FslCustomControls: TList;
     FoParentItem: TItemFrameBase;
     FoItemThatInterruptThis: TItemFrameBase;
@@ -98,6 +115,7 @@ type
     FoEventResponseObject: TObject;
     function InterruptWork: boolean; virtual;
     function DoOnvent(const psEvent: string; const poParam: TObject): boolean; virtual;
+    function TestarCampoTotalmenteVisivel(Sender: TObject): boolean;
   public
     property Id: string read GetId write SetId;
     property ExternalToolItem: string read GetExternalToolItem write SetExternalToolItem;
@@ -168,11 +186,81 @@ begin
   edtExternalToolItem.SetFocus();
 end;
 
-procedure TItemFrameBase.btnEditDescriptionClick(Sender: TObject);
+procedure TItemFrameBase.lbDescriptionDbClick(Sender: TObject);
 begin
   mmDescription.Lines.Text := FoItem.Description;
   mmDescription.Visible := True;
   mmDescription.SetFocus;
+end;
+
+procedure TItemFrameBase.btnEditDescriptionClick(Sender: TObject);
+begin
+  if mmDescription.Visible then
+  begin
+    FoItem.Description:=mmDescription.Lines.Text;
+    Update(true);
+    mmDescription.Visible := False;
+  end;
+
+  //add new option, db click no label open local memo, in button send a message to gui open a dialog
+  if not DoOnvent('item_memo_edition', mmDescription) then
+    //but if not return true, this default editor will be opend
+    lbDescriptionDbClick(Sender);
+end;
+
+procedure TItemFrameBase.edtPutOkOnItemIntervalClick(Sender: TObject);
+var
+  sl: TStringList;
+  s: string;
+begin
+  if lbTime.ItemIndex >= 0 then
+  begin
+    sl := TStringList.Create;
+    try
+      sl.Text := FoItem.TimeIntervals;
+      s := sl[lbTime.ItemIndex];
+      if length(s) < 24 then
+        exit;
+
+      if Pos(' Ok', s) > 24 then
+        s := StringReplace(s, ' Ok', '', [])
+      else
+        s := s + ' Ok';
+      sl[lbTime.ItemIndex] := s;
+      FoItem.TimeIntervals := sl.Text;
+      Update(true);
+      DoOnvent('item_time_edited', nil);
+    finally
+      sl.Free;
+    end;
+  end;
+end;
+
+procedure TItemFrameBase.btnEditDescExternalClick(Sender: TObject);
+begin
+
+end;
+
+procedure TItemFrameBase.btnChangeSizePlussClick(Sender: TObject);
+begin
+  if Height > (FnOriginalHeight * nMAX_TIMES_SIZE_FRAME) then
+    exit;
+  if Height < FnOriginalHeight then
+    Height := FnOriginalHeight
+  else
+   Height := Height + FnOriginalHeight;
+lblDescription.ShowHint := Height = FnOriginalHeight;
+end;
+
+procedure TItemFrameBase.btnChangeSizeLessClick(Sender: TObject);
+begin
+  if Height <= (FnOriginalHeight div 2) then
+    exit;
+  if Height <= FnOriginalHeight then
+    Height := FnOriginalHeight div 2
+  else
+    Height := Height - FnOriginalHeight;
+  lblDescription.ShowHint := Height = FnOriginalHeight;
 end;
 
 procedure TItemFrameBase.btnEditDescriptionExit(Sender: TObject);
@@ -279,6 +367,15 @@ procedure TItemFrameBase.FrameExit(Sender: TObject);
 begin
   edtDeleteTimeInterval.Visible := false;
   edtEditTimeInterval.Visible := false;
+  edtPutOkOnItemInterval.Visible := false;
+end;
+
+procedure TItemFrameBase.lblTimeDblClick(Sender: TObject);
+begin
+  mmTimeOfLabel.Lines.Text := lblTime.Caption;
+  mmTimeOfLabel.Left := lblTime.Left;
+  mmTimeOfLabel.Visible := true;
+  mmTimeOfLabel.SetFocus;
 end;
 
 procedure TItemFrameBase.lbTimeClick(Sender: TObject);
@@ -286,6 +383,7 @@ begin
   //start edit mode to time inervals
   edtDeleteTimeInterval.Visible := true;
   edtEditTimeInterval.Visible := true;
+  edtPutOkOnItemInterval.Visible := true;
 end;
 
 procedure TItemFrameBase.lbTimeDblClick(Sender: TObject);
@@ -294,6 +392,11 @@ begin
 end;
 
 procedure TItemFrameBase.lbTimeExit(Sender: TObject);
+begin
+  mmTimeOfLabel.Visible := false;
+end;
+
+procedure TItemFrameBase.mmDescriptionDblClick(Sender: TObject);
 begin
 end;
 
@@ -304,13 +407,26 @@ begin
   Update(true);
 end;
 
+procedure TItemFrameBase.mmTimeOfLabelExit(Sender: TObject);
+begin
+  mmTimeOfLabel.visible := false;
+end;
+
+function TItemFrameBase.TestarCampoTotalmenteVisivel(Sender: TObject): boolean;
+begin
+  if not (Sender is TControl) then
+    exit(false);
+  result := Height > ((Sender as TControl).Top + (Sender as TControl).Height);
+
+end;
+
 procedure TItemFrameBase.TratarMouseSobreTextos(Sender: TObject;
   Shift: TShiftState; X, Y: integer);
 begin
   //de acordo com o texto, msotra botão associado
-  btnEditTitle.Visible := Sender = lblTitle;
-  btnEditExternalToolItem.Visible := Sender = lblExternalToolItem;
-  btnEditDescription.Visible := Sender = lblDescription;
+  btnEditTitle.Visible := (Sender = lblTitle) and TestarCampoTotalmenteVisivel(Sender);
+  btnEditExternalToolItem.Visible := (Sender = lblExternalToolItem) and TestarCampoTotalmenteVisivel(Sender);
+  btnEditDescription.Visible := (Sender = lblDescription) and TestarCampoTotalmenteVisivel(Sender);
 end;
 
 procedure TItemFrameBase.SetTitle(AValue: string);
@@ -353,6 +469,7 @@ begin
 
   Result := FOnvent(Self, psEvent, poParam, FoEventResponseObject);
 end;
+
 
 procedure TItemFrameBase.SetTime(AValue: string);
 begin
@@ -508,7 +625,14 @@ begin
 
   gb.Color := $00EBEBEB; //white + 1
   if Working then
+  begin
     gb.Color := $00D0FBD6; //green
+    if Pos('CountDown:', FoItem.Time) > 0 then
+    begin
+      gb.Color := $00BEF9FA; //welow
+    end;
+
+  end;
 
   if FoParentItem <> nil then
   begin
@@ -544,6 +668,7 @@ end;
 constructor TItemFrameBase.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
+  FnOriginalHeight:=Height;
   FslCustomControls := TList.Create;
   FoItem := TItemDto.Create;
   Update(true);

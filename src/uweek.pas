@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  Buttons, uMoteMessage, uEventDto, uItemDto, uDateIntervalParamDto,
+  Buttons, Menus, uMoteMessage, uEventDto, uItemDto, uDateIntervalParamDto,
   uItemFrameWeekCompact;
 
 type
@@ -30,7 +30,9 @@ type
     Label4: TLabel;
     Label5: TLabel;
     ListBoxMessages: TListBox;
+    miInitWorkToday: TMenuItem;
     Panel: TPanel;
+    PopupMenuItem: TPopupMenu;
     ScrollBox1: TScrollBox;
     ScrollBox2: TScrollBox;
     ScrollBox3: TScrollBox;
@@ -47,6 +49,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure gbClick(Sender: TObject);
+    procedure miInitWorkTodayClick(Sender: TObject);
     procedure PanelClick(Sender: TObject);
   private
     FdtStart, FdtEnd: TDateTime;
@@ -230,9 +233,15 @@ begin
   FoLastFrameEventHandle := Sender as TItemFrameWeekCompact;
   e := TEventDto.CreateEventObject(psEvent, FoLastFrameEventHandle.Item);
   try
+    if psEvent = 'item_option' then
+    begin
+      PopupMenuItem.PopupComponent:=(poParam as TComponent);
+      PopupMenuItem.PopUp;
+      exit(true);
+    end;
 
     if Assigned(FoMessageClient) then
-    FoMessageClient.Publish('item', e.ToString);
+      FoMessageClient.Publish('item', e.ToString);
   finally
     e.Free;
   end;
@@ -263,6 +272,20 @@ end;
 
 procedure TfrmWeek.gbClick(Sender: TObject);
 begin
+
+end;
+
+procedure TfrmWeek.miInitWorkTodayClick(Sender: TObject);
+var
+  e: TEventDto;
+begin
+  e := TEventDto.CreateEventObject('item_init_work', FoLastFrameEventHandle.Item);
+  try
+    //e.payload:=FoLastFrameEventHandle.ToString;
+    FoMessageClient.Publish('item', e.ToString);
+  finally
+   e.Free;
+  end;
 
 end;
 

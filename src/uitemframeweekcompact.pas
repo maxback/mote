@@ -31,6 +31,10 @@ type
     lblTitle: TLabel;
     lbTime: TListBox;
     mmDescription: TMemo;
+    mmTimeOfLabel: TMemo;
+    procedure edtOptionsClick(Sender: TObject);
+    procedure lblTimeDblClick(Sender: TObject);
+    procedure mmTimeOfLabelExit(Sender: TObject);
   private
     FoItem: TItemDto;
 
@@ -97,6 +101,23 @@ implementation
 uses
   uMoteUtils;
 { TItemFrameWeekCompact }
+
+procedure TItemFrameWeekCompact.edtOptionsClick(Sender: TObject);
+begin
+  DoOnvent('item_option', Sender);
+end;
+
+procedure TItemFrameWeekCompact.lblTimeDblClick(Sender: TObject);
+begin
+  mmTimeOfLabel.Lines.Text := lblTime.Caption;
+  mmTimeOfLabel.Visible := true;
+  mmTimeOfLabel.SetFocus;
+end;
+
+procedure TItemFrameWeekCompact.mmTimeOfLabelExit(Sender: TObject);
+begin
+  mmTimeOfLabel.Visible := false;
+end;
 
 function TItemFrameWeekCompact.GetDescription: string;
 begin

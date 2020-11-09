@@ -1,21 +1,21 @@
 object ItemFrameWeekCompact: TItemFrameWeekCompact
   Left = 0
-  Height = 123
+  Height = 174
   Top = 0
   Width = 266
   Align = alTop
-  ClientHeight = 123
+  ClientHeight = 174
   ClientWidth = 266
   TabOrder = 0
   DesignLeft = 771
   DesignTop = 119
   object gb: TGroupBox
     Left = 0
-    Height = 123
+    Height = 174
     Top = 0
     Width = 266
     Align = alClient
-    ClientHeight = 103
+    ClientHeight = 154
     ClientWidth = 262
     ParentColor = False
     TabOrder = 0
@@ -51,11 +51,14 @@ object ItemFrameWeekCompact: TItemFrameWeekCompact
       Font.Quality = fqDraft
       ParentColor = False
       ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
       WordWrap = True
+      OnDblClick = lblTimeDblClick
     end
     object lblDescription: TLabel
       Left = 210
-      Height = 44
+      Height = 95
       Top = 56
       Width = 24
       Anchors = [akTop, akLeft, akRight, akBottom]
@@ -112,7 +115,7 @@ object ItemFrameWeekCompact: TItemFrameWeekCompact
       Visible = False
     end
     object btnEditTitle: TBitBtn
-      Left = 238
+      Left = 239
       Height = 31
       Top = -8
       Width = 23
@@ -211,6 +214,7 @@ object ItemFrameWeekCompact: TItemFrameWeekCompact
       ParentShowHint = False
       ShowHint = True
       TabOrder = 3
+      Visible = False
     end
     object btnInitUnexpectedWork: TBitBtn
       Left = 1
@@ -261,9 +265,9 @@ object ItemFrameWeekCompact: TItemFrameWeekCompact
     end
     object btnStop: TBitBtn
       Left = 1
-      Height = 30
+      Height = 28
       Hint = 'Interrpção (Inicia um trabalho inesperado)'
-      Top = -4
+      Top = -2
       Width = 23
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -374,16 +378,17 @@ object ItemFrameWeekCompact: TItemFrameWeekCompact
     end
     object lbTime: TListBox
       Left = 27
-      Height = 60
+      Height = 108
       Top = 40
       Width = 152
+      Anchors = [akTop, akLeft, akBottom]
       ItemHeight = 0
       TabOrder = 8
     end
     object mmDescription: TMemo
       Left = 25
-      Height = 102
-      Top = -2
+      Height = 146
+      Top = 0
       Width = 211
       Anchors = [akTop, akLeft, akRight, akBottom]
       Lines.Strings = (
@@ -396,16 +401,17 @@ object ItemFrameWeekCompact: TItemFrameWeekCompact
     object edtOptions: TBitBtn
       Left = 2
       Height = 17
-      Top = 83
+      Top = 131
       Width = 22
       Anchors = [akLeft, akBottom]
       Caption = '...'
+      OnClick = edtOptionsClick
       TabOrder = 10
     end
     object edtDeleteTimeInterval: TBitBtn
       Left = 139
       Height = 19
-      Top = 21
+      Top = 72
       Width = 21
       Anchors = [akLeft, akBottom]
       Glyph.Data = {
@@ -429,7 +435,7 @@ object ItemFrameWeekCompact: TItemFrameWeekCompact
     object edtEditTimeInterval: TBitBtn
       Left = 158
       Height = 19
-      Top = 21
+      Top = 72
       Width = 21
       Anchors = [akLeft, akBottom]
       Glyph.Data = {
@@ -470,6 +476,19 @@ object ItemFrameWeekCompact: TItemFrameWeekCompact
       }
       Margin = 0
       TabOrder = 12
+      Visible = False
+    end
+    object mmTimeOfLabel: TMemo
+      Left = 24
+      Height = 154
+      Top = -3
+      Width = 211
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      Color = clCream
+      OnExit = mmTimeOfLabelExit
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
+      TabOrder = 13
       Visible = False
     end
   end

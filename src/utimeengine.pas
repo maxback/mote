@@ -25,8 +25,11 @@ private
   procedure MessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
   function ExtractTimes(const psString: string): TTimeEnginePairOfTimes;
   function GenerateTodayTimeText(const poItem: TItemDto): string;
+  function GenerateTotalTimeText(const poItem: TItemDto): string;
+  function GenerateEspecificDateTimeText(const poItem: TItemDto; const pdtEspecificDate: TDatetime; const psPrefix: string = #13#10): string;
   procedure StartIterval(const poItem: TItemDto);
   function TestToday(const psString: string): boolean;
+  function TestDate(const psString: string; const pdtEspecificDate: TDatetime): boolean;
   function GetTimeStringInExtendedFormat(const pdttime: TDateTime): Extended;
 public
   property MessageClient: TMoteMessageClient read GetMessageClient write SetMessageClient;
@@ -81,6 +84,8 @@ begin
   if nPos2 > nPos1 then
   begin
     sEnd := Copy(psString, nPos2+3, 5);
+    if sEnd = '24:00' then
+      sEnd := '23:59:59';
     result.dtEnd := StrToTime(sEnd);
   end;
 end;
@@ -118,7 +123,17 @@ begin
   result := Pos(sToday, psString) = 1;
 end;
 
-function TTimeEngine.GetTimeStringInExtendedFormat(const pdtTime: TDateTime): Extended;
+function TTimeEngine.TestDate(const psString: string;
+  const pdtEspecificDate: TDatetime): boolean;
+var
+  sDate: string;
+begin
+  sDate := Formatdatetime('dd/mm/yyyy', pdtEspecificDate);
+  result := Pos(sDate, psString) = 1;
+end;
+
+function TTimeEngine.GetTimeStringInExtendedFormat(const pdttime: TDateTime
+  ): Extended;
 var
   AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word;
   eHour, eMinute, eSecond: Extended;
@@ -164,14 +179,16 @@ begin
       exit('');
 
     Result := FormatDateTime('hh:mm', dtSum)+ ' (' + Format('%0.3f', [GetTimeStringInExtendedFormat(dtSum)])+')';
-    if sl.Count < 2 then
-      exit;
+    //if sl.Count < 2 then
+    //  exit;
 
     Result := Result + #13#10 + '[';
     if poItem.Working then
       Result := Result + 'Actual: '
     else
       Result := Result + 'Last: ';
+    if dtLast < 0.0 then
+      Result := Result + 'CountDown: -';
     Result := Result + FormatDateTime('hh:mm', dtLast)+ ' (' + Format('%0.3f', [GetTimeStringInExtendedFormat(dtLast)]) +
     ')]';
 
@@ -180,6 +197,77 @@ begin
   end;
 end;
 
+function TTimeEngine.GenerateEspecificDateTimeText(const poItem: TItemDto; const pdtEspecificDate: TDatetime; const psPrefix: string): string;
+var
+  i: integer;
+  sl: TStringList;
+  dtSum: TDateTime;
+  dtLast: TDateTime;
+  s: string;
+  sEspecificDate: string;
+  pair: TTimeEnginePairOfTimes;
+begin
+  sEspecificDate := FormatDateTime('dd/mm/yyyy', pdtEspecificDate);
+  dtSum := 0.0;
+  sl := TStringList.Create;
+  try
+    sl.Text := poItem.TimeIntervals;
+    for i := 0 to sl.Count-1 do
+    begin
+      s := sl[i];
+      if not TestDate(s, pdtEspecificDate) then
+        continue;
+      pair := ExtractTimes(s);
+      if pair.dtStart = 0.0 then
+        continue;
+      if pair.dtEnd = 0.0 then
+        pair.dtEnd := Time;
+      dtLast := (pair.dtEnd - pair.dtStart);
+      dtSum := dtSum + dtLast;
+    end;
+
+    if dtSum = TDateTime(0.0) then
+      exit('');
+
+    Result := psPrefix + sEspecificDate + ': ' + FormatDateTime('hh:mm', dtSum)+ ' (' + Format('%0.3f', [GetTimeStringInExtendedFormat(dtSum)])+')';
+  finally
+    sl.Free;
+  end;
+end;
+
+
+function TTimeEngine.GenerateTotalTimeText(const poItem: TItemDto): string;
+var
+  i: integer;
+  sl: TStringList;
+  dtSum: TDateTime;
+  s: string;
+  pair: TTimeEnginePairOfTimes;
+begin
+  dtSum := 0.0;
+  sl := TStringList.Create;
+  try
+    sl.Text := poItem.TimeIntervals;
+    for i := 0 to sl.Count-1 do
+    begin
+      s := sl[i];
+      pair := ExtractTimes(s);
+      if pair.dtStart = 0.0 then
+        continue;
+      if pair.dtEnd = 0.0 then
+        pair.dtEnd := Time;
+      if pair.dtEnd > pair.dtStart then
+        dtSum := dtSum + (pair.dtEnd - pair.dtStart);
+    end;
+
+    if dtSum = TDateTime(0.0) then
+      exit('');
+
+    Result := FormatDateTime('hh:mm', dtSum)+ ' (' + Format('%0.3f', [GetTimeStringInExtendedFormat(dtSum)])+')';
+  finally
+    sl.Free;
+  end;
+end;
 
 procedure TTimeEngine.MessageEvent(Sender: Tobject;
   const poMessage: TMoteMessage);
@@ -197,7 +285,14 @@ begin
     if e.event = 'item_init_work' then
     begin
       StartIterval(oItem);
-      oItem.Time:= GenerateTodayTimeText(oItem);
+      oItem.Time:= GenerateTotalTimeText(oItem) + ' Today: ' + GenerateTodayTimeText(oItem) +
+      GenerateEspecificDateTimeText(oItem, now - 1.0) +
+      GenerateEspecificDateTimeText(oItem, now - 2.0) +
+      GenerateEspecificDateTimeText(oItem, now - 3.0) +
+      GenerateEspecificDateTimeText(oItem, now - 4.0) +
+      GenerateEspecificDateTimeText(oItem, now - 5.0) +
+      GenerateEspecificDateTimeText(oItem, now - 6.0) +
+      GenerateEspecificDateTimeText(oItem, now - 7.0);
       e.event:='item_update';
       e.payload:=oItem.ToString;
       FoMessageClient.Publish('item', e.ToString);
@@ -206,7 +301,14 @@ begin
     if (e.event = 'item_stop') or (e.event = 'item_interrupt') then
     begin
       EndIterval(oItem);
-      oItem.Time:= GenerateTodayTimeText(oItem);
+      oItem.Time:= GenerateTotalTimeText(oItem) + ' Today: ' + GenerateTodayTimeText(oItem) +
+      GenerateEspecificDateTimeText(oItem, now - 1.0) +
+      GenerateEspecificDateTimeText(oItem, now - 2.0) +
+      GenerateEspecificDateTimeText(oItem, now - 3.0) +
+      GenerateEspecificDateTimeText(oItem, now - 4.0) +
+      GenerateEspecificDateTimeText(oItem, now - 5.0) +
+      GenerateEspecificDateTimeText(oItem, now - 6.0) +
+      GenerateEspecificDateTimeText(oItem, now - 7.0);
       e.event:='item_update';
       e.payload:=oItem.ToString;
       FoMessageClient.Publish('item', e.ToString);
@@ -223,7 +325,14 @@ begin
     else
     if (e.event = 'item_time_edited') or (e.event = 'item_refresh_query') then
     begin
-      s := GenerateTodayTimeText(oItem);
+      s := GenerateTotalTimeText(oItem) + ' Today: ' + GenerateTodayTimeText(oItem) +
+        GenerateEspecificDateTimeText(oItem, now - 1.0) +
+        GenerateEspecificDateTimeText(oItem, now - 2.0) +
+        GenerateEspecificDateTimeText(oItem, now - 3.0) +
+        GenerateEspecificDateTimeText(oItem, now - 4.0) +
+        GenerateEspecificDateTimeText(oItem, now - 5.0) +
+        GenerateEspecificDateTimeText(oItem, now - 6.0) +
+        GenerateEspecificDateTimeText(oItem, now - 7.0);
       if s = oItem.Time then
         exit;
       oItem.Time:= s;

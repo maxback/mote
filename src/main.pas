@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Menus,
-  Buttons, ActnList, StdCtrls, uItemFrameBase, uMoteMessage, uEventDto,
-  uItemDto;
+  Buttons, ActnList, StdCtrls, fphttpclient, uItemFrameBase, uMoteMessage, uEventDto,
+  uItemDto, uSettingItemUriDto, uSettingNewItemOptionsDto;
 
 type
 
@@ -16,7 +16,8 @@ type
   TfrmMain = class(TForm)
     acAddItem: TAction;
     acShowWeek: TAction;
-    acAtivarTimerAtualizacoesTempos: TAction;
+    acTimerActivate: TAction;
+    acAddRemoteItem: TAction;
     ActionList: TActionList;
     Button1: TButton;
     imFundo: TImage;
@@ -33,17 +34,25 @@ type
     miExit: TMenuItem;
     miFile: TMenuItem;
     PanelActions: TPanel;
+    pmRemoteItems: TPopupMenu;
     PopupMenuItem: TPopupMenu;
     ScrollBoxMain: TScrollBox;
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
+    btnRemoteNewItem: TSpeedButton;
     Splitter1: TSplitter;
     Timer: TTimer;
+
+    procedure AddItemFromJson(const psJSONString: string);
     procedure acAddItemExecute(Sender: TObject);
-    procedure acAtivarTimerAtualizacoesTemposExecute(Sender: TObject);
+    procedure acAddRemoteItemExecute(Sender: TObject);
+    procedure acTimerActivateExecute(Sender: TObject);
     procedure acShowWeekExecute(Sender: TObject);
+    procedure btnRemoteNewItemClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure ControlBarClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure miItemPopupDeleteItemClick(Sender: TObject);
     procedure miItemPopupItemTextClick(Sender: TObject);
@@ -58,10 +67,16 @@ type
     FoMessageClient: TMoteMessageClient;
     FoLastFrameInserted: TItemFrameBase;
     FoLastFrameEventHandle: TItemFrameBase;
+    FslRemoteItems: TStringList;
 
+    procedure GetRemoteNewItems(poItem: TSettingItemUriDto);
+    function TestItemCanBeVisible(const poItem: TItemDto): boolean;
+
+    procedure miRemoteItemsClick(Sender: TObject);
     procedure AddItemToGui(const psJSONItem: string);
     procedure UpdateItemToGui(const psJSONItem: string);
     procedure DeleteItemToGui(const psJSONItem: string);
+    procedure ApplySetting(const psJSONItem: string);
     function GetMessageClient: TMoteMessageClient;
     procedure SetMessageClient(AValue: TMoteMessageClient);
   public
@@ -77,7 +92,7 @@ implementation
 {$R *.lfm}
 
 uses
-  uUserCodesEditor, uMoteUtils, uWeek;
+  uUserCodesEditor, uMoteUtils, uWeek, uTextEditor;
 
 { TfrmMain }
 
@@ -108,6 +123,11 @@ begin
     if e.event = 'item_delete' then
     begin
       DeleteItemToGui(e.payload);
+    end
+    else
+    if e.event = 'setting_restore' then
+    begin
+      ApplySetting(e.payload);
     end;
   finally
     e.Free;
@@ -129,14 +149,31 @@ begin
   FoLastFrameEventHandle := Sender as TItemFrameBase;
   e := TEventDto.CreateEventObject(psEvent, FoLastFrameEventHandle.Item);
   try
+    if psEvent = 'item_memo_edition' then
+    begin
+      frmTextEditorDialog.mmEditor.Lines.Text:= FoLastFrameEventHandle.Item.Description;
+      frmTextEditorDialog.FoLastFrameEventHandle := FoLastFrameEventHandle;
+      frmTextEditorDialog.Visible := true;
+      frmTextEditorDialog.BringToFront;
+      exit(true);
+    end
+    else
     if psEvent = 'item_option' then
     begin
       PopupMenuItem.PopupComponent:=(poParam as TComponent);
       PopupMenuItem.PopUp;
       exit(true);
-    end;
+    end
+    else
     if psEvent = 'item_interrupt' then
     begin
+      if Timer.Enabled then
+      begin
+        Timer.Enabled := false;
+        miAtivartimer.Checked:=false;
+        ShowMessage('Devido a uma restrição, não possível usar interrupção de item em conjunto com timer. O timer foi desabiltiado');
+      end;
+
       FoLastFrameInserted := nil;
       acAddItemExecute(Sender);
 
@@ -157,6 +194,10 @@ begin
       exit;
     end;
     FoMessageClient.Publish('item', e.ToString);
+
+    //force refrash of time
+    if (psEvent = 'item_init_work') and (not Timer.enabled) then
+      acTimerActivateExecute(sender);
   finally
     e.Free;
   end;
@@ -195,7 +236,6 @@ end;
 
 
 procedure TfrmMain.AddItemToGui(const psJSONItem: string);
-
   var
   oFrame: TItemFrameBase;
 begin
@@ -203,6 +243,8 @@ begin
   if FoLastFrameInserted <> nil then
   begin
     FoLastFrameInserted.UpdateFromJSON(psJSONItem);
+    //temp. action: a hidded item can be showed after init work
+    FoLastFrameInserted.Visible := TestItemCanBeVisible(FoLastFrameInserted.Item);
     exit;
   end;
 
@@ -215,8 +257,8 @@ begin
 
   FoLastFrameInserted.UpdateFromJSON(psJSONItem);
   //temp. action: hide itens for other dates
-  if (FoLastFrameInserted.Item.TimeIntervals <> '') and (Pos(FormatDateTime('dd/mm/yyyy', Date), FoLastFrameInserted.Item.TimeIntervals) < 1) then
-    FoLastFrameInserted.Visible:=false;
+  //temp. action: a hidded item can be showed after init work
+  FoLastFrameInserted.Visible := TestItemCanBeVisible(FoLastFrameInserted.Item);
 end;
 
 function TfrmMain.FindItemGui(const psJSONItem: string): TItemFrameBase;
@@ -243,6 +285,17 @@ begin
   end;
 end;
 
+function TfrmMain.TestItemCanBeVisible(const poItem: TItemDto): boolean;
+var
+  s: string;
+begin
+  s := poItem.TimeIntervals;
+  if (s <> '') and (Pos(FormatDateTime('dd/mm/yyyy', Date), s) < 1) then
+    exit(false)
+  else
+    exit(true);
+end;
+
 
 procedure TfrmMain.UpdateItemToGui(const psJSONItem: string);
 var
@@ -250,7 +303,10 @@ var
 begin
   oFrame := FindItemGui(psJSONItem);
   if oFrame <> nil then
+  begin
     oFrame.UpdateFromJSON(psJSONItem);
+    oFrame.Visible := TestItemCanBeVisible(oFrame.Item);
+  end;
 end;
 
 procedure TfrmMain.DeleteItemToGui(const psJSONItem: string);
@@ -267,12 +323,108 @@ begin
   (oControl As TItemFrameBase).Free;
 end;
 
+procedure TfrmMain.GetRemoteNewItems(poItem: TSettingItemUriDto);
+var
+  s: string;
+  oResult: TSettingNewItemOptionsDto;
+  oItem: TSettingNewItemOptionsItemDto;
+  oCi: TcollectionItem;
+  i: integer;
+  mi: TMenuItem;
+begin
+  FslRemoteItems.Clear;
+  s := TFPHttpClient.SimpleGet(poItem.Uri);
+  oResult := TSettingNewItemOptionsDto.Create(s);
+  try
+    ListBoxMessages.Items.Add(Format('%d items from remote new items.', [oResult.items.Count]));
+    for i := 0 to oResult.items.Count-1 do
+    begin
+      oCi := oResult.items.Items[i];
+      oItem := TSettingNewItemOptionsItemDto(oCi);
 
+      mi := TMenuItem.Create(pmRemoteItems);
+      mi.Caption := '&' + IntTostr(i+1) + ' - ' + oItem.title;
+      mi.Tag := i;
+      mi.OnClick := @miRemoteItemsClick;
+      FslRemoteItems.Add(oItem.ToString);
+      pmRemoteItems.Items.Add(mi);
+    end;
+  finally
+    oResult.Free;
+  end;
+
+end;
+
+procedure TfrmMain.miRemoteItemsClick(Sender: TObject);
+var
+  s: string;
+  i: integer;
+begin
+  i := (Sender as TMenuItem).Tag;
+  s := FslRemoteItems[i];
+  AddItemFromJson(s);
+end;
+
+
+procedure TfrmMain.ApplySetting(const psJSONItem: string);
+var
+  oItem: TSettingItemUriDto;
+begin
+  oItem := TSettingItemUriDto.Create(psJSONItem);
+  try
+    if oItem.kind = 'new-item-remote-templates' then
+    begin
+      GetRemoteNewItems(oItem);
+    end;
+  finally
+    oItem.Free;
+  end;
+end;
+
+
+procedure TfrmMain.AddItemFromJson(const psJSONString: string);
+var
+  s: string;
+  oItem: TSettingNewItemOptionsItemDto;
+  e: TEventDto;
+begin
+  oItem := TSettingNewItemOptionsItemDto.CreateFromJson(psJSONString);
+  try
+    FnContador := FnContador + 1;
+
+    FoLastFrameInserted := TItemFrameBase.Create(ScrollBoxMain);
+    FoLastFrameInserted.Name := 'Item_' + IntToStr(FnContador);
+    FoLastFrameInserted.Parent := ScrollBoxMain;
+
+    FoLastFrameInserted.Id := GetNewId;
+    FoLastFrameInserted.CreatedBy:=GetCurrentUserName;
+    FoLastFrameInserted.UserName:=GetCurrentUserName;
+    FoLastFrameInserted.Item.CreationDateTime:=now;
+    FoLastFrameInserted.Item.LastUpdateDateTime:=FoLastFrameInserted.Item.CreationDateTime;
+
+    FoLastFrameInserted.Title := oItem.title;
+    FoLastFrameInserted.Description:= oItem.description;
+    FoLastFrameInserted.ExternalToolItem := oItem.externalToolItem;
+
+    FoLastFrameInserted.OnEvent:=@ItemFrameBaseEvent;
+
+    if Assigned(FoMessageClient) then
+    begin
+      e := TEventDto.CreateEventObject('item_create', FoLastFrameInserted.Item);
+      try
+        FoMessageClient.Publish('item', e.ToString);
+      finally
+        e.Free;
+      end;
+    end;
+  finally
+    oItem.Free;
+  end;
+end;
 
 procedure TfrmMain.acAddItemExecute(Sender: TObject);
 var
   s: string;
-var
   e: TEventDto;
 begin
   s := '';
@@ -287,6 +439,8 @@ begin
     FoLastFrameInserted.Id := GetNewId;
     FoLastFrameInserted.CreatedBy:=GetCurrentUserName;
     FoLastFrameInserted.UserName:=GetCurrentUserName;
+    FoLastFrameInserted.Item.CreationDateTime:=now;
+    FoLastFrameInserted.Item.LastUpdateDateTime:=FoLastFrameInserted.Item.CreationDateTime;
 
     FoLastFrameInserted.Title:=s;
     FoLastFrameInserted.Description:='';
@@ -304,15 +458,28 @@ begin
   end;
 end;
 
-procedure TfrmMain.acAtivarTimerAtualizacoesTemposExecute(Sender: TObject);
+procedure TfrmMain.acAddRemoteItemExecute(Sender: TObject);
+begin
+  pmRemoteItems.PopupComponent:=(Sender as TComponent);
+  pmRemoteItems.PopUp;
+end;
+
+procedure TfrmMain.acTimerActivateExecute(Sender: TObject);
 begin
   Timer.Enabled := not Timer.Enabled;
   miAtivartimer.Checked:=Timer.Enabled;
+  if Timer.Enabled then
+    Timer.OnTimer(self);
 end;
 
 procedure TfrmMain.acShowWeekExecute(Sender: TObject);
 begin
   frmWeek.Show;
+end;
+
+procedure TfrmMain.btnRemoteNewItemClick(Sender: TObject);
+begin
+
 end;
 
 procedure TfrmMain.Button1Click(Sender: TObject);
@@ -322,6 +489,19 @@ end;
 
 procedure TfrmMain.ControlBarClick(Sender: TObject);
 begin
+end;
+
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+  FslRemoteItems := TStringList.Create;
+  //force refrash of time
+  if not Timer.enabled then
+    acTimerActivateExecute(sender);
+end;
+
+procedure TfrmMain.FormDestroy(Sender: TObject);
+begin
+  FslRemoteItems.Free;
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);

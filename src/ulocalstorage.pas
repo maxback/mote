@@ -18,6 +18,7 @@ TLocalStorage = class
     FenKind: TLocalStorageKind;
     FslLastQueryResult: TStringList;
     FoMessageClient: TMoteMessageClient;
+    FsBackUpDir: string;
     procedure AppMessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
     procedure DefaultMessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
     procedure ItemMessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
@@ -28,12 +29,14 @@ TLocalStorage = class
     function TestFileContainText(const psFileName: string; const paTextToFind: array of string): boolean;
   protected
     procedure QueryAllItem;
+    procedure SaveBackUp(const psFileName: string);
     procedure QueryByDate(const pdtStartDate, pdtEndDate: TDateTime; const pbIncludeWithoutInterval: boolean = false);
     procedure SendMessagesForLastQueryResult;
     procedure InsertItem(const poItem: TItemDto);
     procedure UpdateItem(const poItem: TItemDto);
     procedure DeleteItem(const poItem: TItemDto);
   public
+    property BackUpDir: string read FsBackUpDir write FsBackUpDir;
     property MessageClient: TMoteMessageClient read GetMessageClient write SetMessageClient;
     constructor Create(const psFilesystemStorageDir: string;
       const psItemName: string; const penKind: TLocalStorageKind);
@@ -131,7 +134,9 @@ begin
   sl := TStringList.Create;
   try
     sl.Text := poItem.ToString;
+    poItem.LastUpdateDateTime:=now;
     sFileName := GenerateItemFileName(poItem);
+    SaveBackUp(sFileName);
     sl.SaveToFile(sFileName);
   finally
     sl.Free;
@@ -143,6 +148,7 @@ var
   sFileName: string;
 begin
   sFileName := GenerateItemFileName(poItem);
+  SaveBackUp(sFileName);
   DeleteFile(sFileName);
 end;
 
@@ -204,6 +210,25 @@ begin
     FindNext(sr);
   end;
   FindClose(sr);
+end;
+
+procedure TLocalStorage.SaveBackUp(const psFileName: string);
+var
+  sl: TStringList;
+  oItem: TItemDto;
+begin
+  if BackUpDir = '' then
+    exit;
+
+  sl := TStringList.Create;
+  try
+    sl.LoadFromFile(psFileName);
+    oItem := TItemDto.Create(sl.Text);
+    sl.SavetoFile(BackUpDir + oItem.Id + '(' + FormatDateTime('yyyy-mm-dd-hh-mm-ss-nnn', Now) + ').json');
+  finally
+    oItem.Free;
+    sl.free;
+  end;
 end;
 
 procedure TLocalStorage.QueryByDate(const pdtStartDate, pdtEndDate: TDateTime; const pbIncludeWithoutInterval: boolean);

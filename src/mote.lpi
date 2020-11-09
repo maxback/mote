@@ -41,7 +41,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="13">
+    <Units Count="19">
       <Unit0>
         <Filename Value="mote.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -120,6 +120,38 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="uDateIntervalParamDto"/>
       </Unit12>
+      <Unit13>
+        <Filename Value="upomodoro.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uPomodoro"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="dtos\usettingitembase.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uSettingItemBase"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="dtos\usettingporomodoroitemdto.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uSettingPoromodoroItemDto"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="utexteditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmTextEditorDialog"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uTextEditor"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="dtos\usettingitemuridto.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="dtos\usettingnewitemoptionsdto.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uSettingNewItemOptionsDto"/>
+      </Unit18>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

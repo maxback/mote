@@ -5,11 +5,21 @@ unit uMoteUtils;
 interface
 
 uses
-  Classes, SysUtils, fpjsonrtti
+  Classes, SysUtils, fpjsonrtti, TypInfo, fpjson
   {$IFDEF MSWINDOWS}
   , Windows, LazUTF8
   {$ENDIF}
   ;
+
+type
+  TJSONHelper = class
+  public
+    procedure OnStreamProperty(Sender: TObject; AObject: TObject;
+      Info: PPropInfo; var Res: TJSONData);
+    procedure OnRestoreProperty(Sender: TObject; AObject: TObject;
+      Info: PPropInfo; AValue: TJSONData; var Handled: Boolean);
+  end;
+
 
 function GetNewId: string;
 function GetCurrentUserName: String;
@@ -17,6 +27,8 @@ function ConvertObjectToJSONString(const poObject: TObject): string;
 procedure ConvertJSONStringObject(const psJSONString: string; const poObject: TObject);
 
 implementation
+var
+  goJSONHelper: TJSONHelper;
 
 function GetNewId: string;
 Var
@@ -28,6 +40,39 @@ begin
 end;
 
 
+procedure TJSONHelper.OnStreamProperty(Sender: TObject; AObject: TObject;
+  Info: PPropInfo; var Res: TJSONData);
+var
+  sDateTime: string;
+begin
+  if (Info^.PropType^.Name = 'TDateTime') then
+  begin
+    sDateTime := FormatDateTime('dd/mm/yyyy hh:mm:ss', TDateTime(GetPropValue(AObject, Info, False)));
+    Res.Free;
+    Res := TJSONString.Create(sDateTime);
+  end;
+end;
+
+procedure TJSONHelper.OnRestoreProperty(Sender: TObject; AObject: TObject;
+  Info: PPropInfo; AValue: TJSONData; var Handled: Boolean);
+var
+  dtDateTime: TDateTime;
+  sDate, sTime: string;
+begin
+  Handled := False;
+  if (Info^.PropType^.Name = 'TDateTime') then
+  begin
+    Handled := True;
+    sDate := Copy(AValue.AsString, 1, 10);
+    sTime := Copy(AValue.AsString, 12, 8);
+    if sTime = '24:00' then
+      dtDateTime := StrToDate(sDate) + 1.0
+    else
+      dtDateTime := StrToDate(sDate) + StrToTime(sTime);
+    SetPropValue(AObject, Info, dtDateTime);
+  end;
+end;
+
 function ConvertObjectToJSONString(const poObject: TObject): string;
 var
   Streamer: TJSONStreamer;
@@ -35,6 +80,7 @@ begin
   Streamer := TJSONStreamer.Create(nil);
   try
     result := '{}';
+    Streamer.OnStreamProperty := @goJSONHelper.OnStreamProperty;
     if Assigned(poObject) then
       result := Streamer.ObjectToJSONString(poObject);
   finally
@@ -42,18 +88,23 @@ begin
   end;
 end;
 
+
+
 procedure ConvertJSONStringObject(const psJSONString: string; const poObject: TObject);
 var
   Streamer: TJSONDeStreamer;
 begin
   Streamer := TJSONDeStreamer.Create(nil);
   try
+    Streamer.OnRestoreProperty := @goJSONHelper.OnRestoreProperty;
     if Assigned(poObject) then
       Streamer.JSONToObject(psJSONString, poObject);
   finally
     Streamer.Free;
   end;
 end;
+
+
 
 //solutinon published in https://forum.lazarus.freepascal.org/index.php/topic,23171.msg138057.html#msg138057 by Bart
 function GetCurrentUserName: String;
@@ -107,6 +158,7 @@ begin
   {$ENDIF UNIX}
 end;
 
-
+initialization
+  goJSONHelper := TJSONHelper.Create;
 end.
 

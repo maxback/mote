@@ -12,6 +12,8 @@ type
 
   TItemDto = class(TPersistent)
   private
+    FdtCreationDateTime: TDateTime;
+    FdtLastUpdateDateTime: TDateTime;
     FsId: string;
     FsDescription: string;
     FsExternalToolItem: string;
@@ -33,6 +35,8 @@ type
     property TimeIntervals: string read FsTimeIntervals write FsTimeIntervals;
     property UserName: string read FsUserName write FsUserName;
     property CreatedBy: string read FsCreatedBy write FsCreatedBy;
+    property CreationDateTime: TDateTime read FdtCreationDateTime write FdtCreationDateTime;
+    property LastUpdateDateTime: TDateTime read FdtLastUpdateDateTime write FdtLastUpdateDateTime;
 
     function ToString: string; override;
     constructor Create; overload;
@@ -73,6 +77,8 @@ destructor TItemDto.Destroy;
 begin
   inherited Destroy;
 end;
+
+
 
 end.
 

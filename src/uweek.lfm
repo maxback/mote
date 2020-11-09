@@ -1,7 +1,7 @@
 object frmWeek: TfrmWeek
-  Left = 132
+  Left = 437
   Height = 654
-  Top = 140
+  Top = 55
   Width = 931
   Caption = 'frmWeek'
   ClientHeight = 654
@@ -29,6 +29,7 @@ object frmWeek: TfrmWeek
     Align = alTop
     ClientHeight = 53
     ClientWidth = 927
+    PopupMenu = PopupMenuItem
     TabOrder = 1
     object edtDate: TEdit
       Left = 112
@@ -255,5 +256,13 @@ object frmWeek: TfrmWeek
     Caption = 'Limpar'
     OnClick = Button1Click
     TabOrder = 4
+  end
+  object PopupMenuItem: TPopupMenu
+    Left = 368
+    Top = 16
+    object miInitWorkToday: TMenuItem
+      Caption = '&Iniciar este item hoje'
+      OnClick = miInitWorkTodayClick
+    end
   end
 end

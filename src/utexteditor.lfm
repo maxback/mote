@@ -1,0 +1,50 @@
+object frmTextEditorDialog: TfrmTextEditorDialog
+  Left = 405
+  Height = 705
+  Top = 119
+  Width = 911
+  Caption = 'Editor de texto'
+  ClientHeight = 705
+  ClientWidth = 911
+  Position = poMainFormCenter
+  LCLVersion = '2.0.10.0'
+  WindowState = wsMaximized
+  object mmEditor: TMemo
+    Left = 0
+    Height = 650
+    Top = 55
+    Width = 911
+    Align = alClient
+    Lines.Strings = (
+      'mmEditor'
+    )
+    TabOrder = 0
+  end
+  object PanelActions: TPanel
+    Left = 0
+    Height = 55
+    Top = 0
+    Width = 911
+    Align = alTop
+    ClientHeight = 55
+    ClientWidth = 911
+    TabOrder = 1
+    object SpeedButton1: TSpeedButton
+      Left = 783
+      Height = 43
+      Top = 6
+      Width = 122
+      Action = acConfirmEdition
+      Align = alRight
+      BorderSpacing.Around = 5
+    end
+  end
+  object ActionList: TActionList
+    Left = 220
+    Top = 68
+    object acConfirmEdition: TAction
+      Caption = '&Confirm'
+      OnExecute = acConfirmEditionExecute
+    end
+  end
+end
