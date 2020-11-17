@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Buttons, Grids, ComCtrls,
-  Dialogs, ExtCtrls, uItemDto;
+  Dialogs, ExtCtrls, uItemDto, LCLIntf;
 
 {$J+}
 const
@@ -32,10 +32,15 @@ type
   TItemFrameBaseEvent = function(Sender: TObject; const psEvent: string;
     const poParam: TObject; var poResponse: TObject): boolean of object;
 
+  TItemFrameBaseEventParamObject = class
+    StringValue: string;
+  end;
+
   TItemFrameBase = class(TFrame)
     btnChangeSizeLess: TBitBtn;
     btnEditDescription: TBitBtn;
-    edtPutOkOnItemInterval: TBitBtn;
+    btnNewItemwithSelectTimeInterval: TBitBtn;
+    edtDeleteTimeInterval: TBitBtn;
     edtEditTimeInterval: TBitBtn;
     edtOptions: TBitBtn;
     btnEditTitle: TBitBtn;
@@ -44,8 +49,8 @@ type
     btnInitWork: TBitBtn;
     btnInitUnexpectedWork: TBitBtn;
     edtExternalToolItem: TEdit;
-    edtDeleteTimeInterval: TBitBtn;
     btnChangeSizePluss: TBitBtn;
+    edtPutOkOnItemInterval: TBitBtn;
     edtTitle: TEdit;
     gb: TGroupBox;
     lblTime: TLabel;
@@ -55,10 +60,13 @@ type
     lbTime: TListBox;
     mmDescription: TMemo;
     mmTimeOfLabel: TMemo;
+    pnTimeButton: TPanel;
     procedure btnChangeSizeLessClick(Sender: TObject);
     procedure btnChangeSizePlussClick(Sender: TObject);
     procedure btnEditDescExternalClick(Sender: TObject);
     procedure btnEditDescriptionClick(Sender: TObject);
+    procedure btnNewItemwithSelectTimeIntervalClick(Sender: TObject);
+    procedure edtExternalToolItemDblClick(Sender: TObject);
     procedure edtPutOkOnItemIntervalClick(Sender: TObject);
     procedure lbDescriptionDbClick(Sender: TObject);
     procedure btnEditDescriptionExit(Sender: TObject);
@@ -133,7 +141,7 @@ type
     property Item: TItemDto read FoItem write FoItem;
 
     function ToString: string; override;
-    procedure Update(const pbHandleInternal: boolean); virtual;
+    procedure Update(const pbHandleInternal: boolean; const pbForceHasUpdated: boolean = false); virtual;
     procedure UpdateFromJSON(const psJSONItem: string); virtual;
     procedure AddControl(const psControlClassName: string;
       pslProperties: TStringList; const psUserCodeEventHandle: string);
@@ -206,6 +214,37 @@ begin
   if not DoOnvent('item_memo_edition', mmDescription) then
     //but if not return true, this default editor will be opend
     lbDescriptionDbClick(Sender);
+end;
+
+procedure TItemFrameBase.btnNewItemwithSelectTimeIntervalClick(Sender: TObject);
+var
+  sl: TStringList;
+  po: TItemFrameBaseEventParamObject;
+begin
+  sl := TStringList.Create;
+  po := TItemFrameBaseEventParamObject.Create;
+  try
+    sl.Text := FoItem.TimeIntervals;
+    if lbTime.ItemIndex >= 0 then
+      po.StringValue := sl[lbTime.ItemIndex]
+    else
+      po.StringValue := FoItem.TimeIntervals;
+    if DoOnvent('item_new_from_timeinterval', po) and (lbTime.ItemIndex >= 0) then
+    begin
+      sl.Delete(lbTime.ItemIndex);
+      FoItem.TimeIntervals := sl.Text;
+      Update(true);
+      DoOnvent('item_time_edited', nil);
+    end;
+  finally
+    po.Free;
+    sl.Free;
+  end;
+end;
+
+procedure TItemFrameBase.edtExternalToolItemDblClick(Sender: TObject);
+begin
+  OpenURL(edtExternalToolItem.Text);
 end;
 
 procedure TItemFrameBase.edtPutOkOnItemIntervalClick(Sender: TObject);
@@ -365,9 +404,7 @@ end;
 
 procedure TItemFrameBase.FrameExit(Sender: TObject);
 begin
-  edtDeleteTimeInterval.Visible := false;
-  edtEditTimeInterval.Visible := false;
-  edtPutOkOnItemInterval.Visible := false;
+  pnTimeButton.Visible := false;
 end;
 
 procedure TItemFrameBase.lblTimeDblClick(Sender: TObject);
@@ -381,9 +418,7 @@ end;
 procedure TItemFrameBase.lbTimeClick(Sender: TObject);
 begin
   //start edit mode to time inervals
-  edtDeleteTimeInterval.Visible := true;
-  edtEditTimeInterval.Visible := true;
-  edtPutOkOnItemInterval.Visible := true;
+  pnTimeButton.Visible := true;
 end;
 
 procedure TItemFrameBase.lbTimeDblClick(Sender: TObject);
@@ -580,7 +615,7 @@ begin
   Update(true);
 end;
 
-procedure TItemFrameBase.Update(const pbHandleInternal: boolean);
+procedure TItemFrameBase.Update(const pbHandleInternal: boolean; const pbForceHasUpdated: boolean);
 var
   bUpdated: boolean;
 begin
@@ -617,7 +652,7 @@ begin
   btnStop.Visible := FoItem.Working;
   gb.Caption := ' ';
 
-  if pbHandleInternal and bUpdated then
+  if pbHandleInternal and (bUpdated or pbForceHasUpdated) then
   begin
     DoOnvent('item_update', nil);
   end;

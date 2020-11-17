@@ -1,5 +1,6 @@
 {
     "kind": "message-bus-api",
     "name": "Equipe",
-    "uri": "http://localhost:5000/api/mote"
+    "uri": "http://localhost:5000/api/mote",
+    "active": true
 }

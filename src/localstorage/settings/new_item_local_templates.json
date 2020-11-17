@@ -1,0 +1,10 @@
+{
+    "kind": "new-item-local-templates",
+    "name": "Opções prontas de itens",
+    "options": [
+        {"kind": "new", "name": "Suporte a equipe externa", "externalWorkItem": "1234"},
+        {"kind": "new", "name": "Suporte a equipe interna", "externalWorkItem": "1235"},
+        {"kind": "new", "name": "Iniciar Reunião diária", "externalWorkItem": "999"}
+    ],
+    "active": true
+}

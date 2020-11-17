@@ -1,0 +1,6 @@
+{
+    "kind": "new-item-remote-templates",
+    "name": "Itens da equipe",
+    "uri": "http://127.0.0.1:1880/api/newItemOptions",
+    "active": true
+}

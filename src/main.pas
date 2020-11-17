@@ -6,8 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Menus,
-  Buttons, ActnList, StdCtrls, fphttpclient, uItemFrameBase, uMoteMessage, uEventDto,
-  uItemDto, uSettingItemUriDto, uSettingNewItemOptionsDto;
+  Buttons, ActnList, StdCtrls, fphttpclient, uItemFrameBase, uTodaySumaryFrame,
+  uMoteMessage, uEventDto, uItemDto, uSettingItemUriDto, uSettingItemBase,
+  uSettingNewItemOptionsDto;
 
 type
 
@@ -18,12 +19,17 @@ type
     acShowWeek: TAction;
     acTimerActivate: TAction;
     acAddRemoteItem: TAction;
+    acFilterSumary: TAction;
+    acMoveTodayToPrev: TAction;
+    acMoveTodayToForward: TAction;
     ActionList: TActionList;
+    btnRemoteNewItem1: TSpeedButton;
     Button1: TButton;
     imFundo: TImage;
     ImageList: TImageList;
     ListBoxMessages: TListBox;
     MainMenu: TMainMenu;
+    N1: TMenuItem;
     miAtivartimer: TMenuItem;
     miItemPopupDeleteItem: TMenuItem;
     miItemPopupItemText: TMenuItem;
@@ -40,9 +46,17 @@ type
     SpeedButton1: TSpeedButton;
     SpeedButton2: TSpeedButton;
     btnRemoteNewItem: TSpeedButton;
+    SpeedButton3: TSpeedButton;
+    SpeedButton4: TSpeedButton;
     Splitter1: TSplitter;
     Timer: TTimer;
+    FrameSumary: TTodaySumaryFrame;
+    TimerInitalizationAnimate: TTimer;
 
+    procedure acFilterSumaryExecute(Sender: TObject);
+    procedure acMoveTodayToForwardExecute(Sender: TObject);
+    procedure acMoveTodayToPrevExecute(Sender: TObject);
+    procedure miItemInterruptionClick(Sender: TObject);
     procedure AddItemFromJson(const psJSONString: string);
     procedure acAddItemExecute(Sender: TObject);
     procedure acAddRemoteItemExecute(Sender: TObject);
@@ -60,6 +74,7 @@ type
     procedure MessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
     procedure MessagePublish(Sender: Tobject; const poMessage: TMoteMessage);
     function ItemFrameBaseEvent(Sender: TObject; const psEvent: string; const poParam: TObject; var poResponse: TObject): boolean;
+    procedure TimerInitalizationAnimateTimer(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
     function FindItemGui(const psJSONItem: string): TItemFrameBase;
   private
@@ -68,8 +83,11 @@ type
     FoLastFrameInserted: TItemFrameBase;
     FoLastFrameEventHandle: TItemFrameBase;
     FslRemoteItems: TStringList;
+    FslItemInterruptionsItems: TStringList;
+    FdtToday: TDateTime;
 
     procedure GetRemoteNewItems(poItem: TSettingItemUriDto);
+    procedure GetRemoteItemInterruptions(poItem: TSettingItemBaseDto);
     function TestItemCanBeVisible(const poItem: TItemDto): boolean;
 
     procedure miRemoteItemsClick(Sender: TObject);
@@ -129,6 +147,7 @@ begin
     begin
       ApplySetting(e.payload);
     end;
+    FrameSumary.Update;
   finally
     e.Free;
   end;
@@ -165,7 +184,7 @@ begin
       exit(true);
     end
     else
-    if psEvent = 'item_interrupt' then
+    if (psEvent = 'item_interrupt') or (psEvent = 'item_new_from_timeinterval') then
     begin
       if Timer.Enabled then
       begin
@@ -186,10 +205,21 @@ begin
         FoMessageClient.Publish('item', e.ToString);
 
         FoLastFrameInserted.Top := FoLastFrameEventHandle.Top + (FoLastFrameEventHandle.Height div 2);
-
-        e.event:='item_init_work';
-        e.payload:=FoLastFrameInserted.ToString;
-        FoMessageClient.Publish('item', e.ToString);
+        if psEvent = 'item_interrupt' then
+        begin
+          e.event:='item_init_work';
+          e.payload:=FoLastFrameInserted.ToString;
+          FoMessageClient.Publish('item', e.ToString);
+        end
+        else
+        if psEvent = 'item_new_from_timeinterval' then
+        begin
+          FoLastFrameInserted.TimeIntervals.Text := (poParam as TItemFrameBaseEventParamObject).StringValue;
+          FoLastFrameInserted.Description:= 'Item extrat from Time intervals of ' + FoLastFrameEventHandle.Title + #13#10+
+          FoLastFrameEventHandle.Description + #13#10 +
+          FoLastFrameEventHandle.Id;
+          FoLastFrameEventHandle.Update(true);
+        end;
       end;
       exit;
     end;
@@ -203,10 +233,15 @@ begin
   end;
 end;
 
+procedure TfrmMain.TimerInitalizationAnimateTimer(Sender: TObject);
+begin
+  PanelActions.Visible := true;
+  TimerInitalizationAnimate.Enabled:=false;
+end;
+
 procedure TfrmMain.TimerTimer(Sender: TObject);
 var
   i: integer;
-  oControl: TControl;
 begin
   for i := 0 to ScrollBoxMain.ComponentCount-1 do
   begin
@@ -215,6 +250,9 @@ begin
       (ScrollBoxMain.Components[i] as TItemFrameBase).RefreshTime;
     end;
   end;
+  FdtToday := now;
+  FrameSumary.TodayValue:=FormatdateTime('dd/mm/yyyy', FdtToday);
+  FrameSumary.Update;
 end;
 
 function TfrmMain.GetMessageClient: TMoteMessageClient;
@@ -236,8 +274,8 @@ end;
 
 
 procedure TfrmMain.AddItemToGui(const psJSONItem: string);
-  var
-  oFrame: TItemFrameBase;
+
+
 begin
   FoLastFrameInserted := FindItemGui(psJSONItem);
   if FoLastFrameInserted <> nil then
@@ -355,6 +393,85 @@ begin
 
 end;
 
+procedure TfrmMain.miItemInterruptionClick(Sender: TObject);
+var
+  s: string;
+  i: integer;
+  oItem: TSettingItemBaseDto;
+  sStart, sEnd: string;
+  sl: TStringList;
+begin
+  if not Assigned(FoLastFrameEventHandle) then
+    exit;
+  i := (Sender as TMenuItem).Tag;
+  s := FslItemInterruptionsItems[i];
+  oItem := TSettingItemBaseDto.CreateFromJSon(s);
+  sl := TStringList.Create;
+  try
+    sStart := Copy(oItem.value, 1, 5);
+    sEnd := Copy(oItem.value, 7, 5);
+
+    sl.Text := FoLastFrameEventHandle.Item.TimeIntervals;
+    i := sl.Count-1;
+    s := sl[i];
+    if length(s) > 18 then
+      raise Exception.Create('You need to do this only on openned item!');
+
+    if sEnd <> '' then
+      sl.Add(Copy(s, 1, 10) + ' ' + sEnd);
+
+    sl[i] := s + ' - ' + sStart;
+
+    FoLastFrameEventHandle.Item.TimeIntervals := sl.Text;
+    FoLastFrameEventHandle.Update(true, true);
+
+  finally
+    sl.Free;
+    oItem.Free;
+  end;
+
+end;
+
+procedure TfrmMain.acFilterSumaryExecute(Sender: TObject);
+var
+  s: string;
+begin
+  s := FrameSumary.Filter;
+  if InputQuery('Filtro','Informe o filtro dos intes no sumário', s) then
+  begin
+    FrameSumary.Filter:=s;
+    FrameSumary.Update;
+  end;
+end;
+
+procedure TfrmMain.acMoveTodayToForwardExecute(Sender: TObject);
+begin
+  FdtToday := FdtToday + 1.0;
+  FrameSumary.TodayValue:=FormatdateTime('dd/mm/yyyy', FdtToday);
+  FrameSumary.Update;
+end;
+
+procedure TfrmMain.acMoveTodayToPrevExecute(Sender: TObject);
+begin
+  FdtToday := FdtToday - 1.0;
+  FrameSumary.TodayValue:=FormatdateTime('dd/mm/yyyy', FdtToday);
+  FrameSumary.Update;
+end;
+
+procedure TfrmMain.GetRemoteItemInterruptions(poItem: TSettingItemBaseDto);
+var
+  mi: TMenuItem;
+begin
+  if not poItem.Active then
+    exit;
+  mi := TMenuItem.Create(PopupMenuItem);
+  mi.Tag := FslItemInterruptionsItems.Count;
+  mi.Caption := '&' + IntTostr(mi.Tag + 1) + ' - ' + poItem.name;
+  mi.OnClick := @miItemInterruptionClick;
+  FslItemInterruptionsItems.Add(poItem.ToString);
+  PopupMenuItem.Items.Add(mi);
+end;
+
 procedure TfrmMain.miRemoteItemsClick(Sender: TObject);
 var
   s: string;
@@ -368,15 +485,24 @@ end;
 
 procedure TfrmMain.ApplySetting(const psJSONItem: string);
 var
-  oItem: TSettingItemUriDto;
+  oItem: TSettingItemBaseDto;
+  oItemUri: TSettingItemUriDto;
 begin
   oItem := TSettingItemUriDto.Create(psJSONItem);
   try
     if oItem.kind = 'new-item-remote-templates' then
     begin
-      GetRemoteNewItems(oItem);
+      oItemUri := TSettingItemUriDto.Create(psJSONItem);
+      GetRemoteNewItems(oItemUri);
+    end
+    else
+    if oItem.kind = 'item-interruption' then
+    begin
+      GetRemoteItemInterruptions(oItem);
     end;
+
   finally
+    oItemUri.Free;
     oItem.Free;
   end;
 end;
@@ -384,7 +510,7 @@ end;
 
 procedure TfrmMain.AddItemFromJson(const psJSONString: string);
 var
-  s: string;
+
   oItem: TSettingNewItemOptionsItemDto;
   e: TEventDto;
 begin
@@ -493,7 +619,12 @@ end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
+  FrameSumary.ContainerOfItemsFrames := ScrollBoxMain;
+  FrameSumary.CanControlContainerOfItemsFramesVisiblity := true;
+  FdtToday := now;
+  FrameSumary.TodayValue:=FormatDateTime('dd/mm/yyyy', FdtToday);;
   FslRemoteItems := TStringList.Create;
+  FslItemInterruptionsItems := TStringList.Create;
   //force refrash of time
   if not Timer.enabled then
     acTimerActivateExecute(sender);
@@ -501,6 +632,7 @@ end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
+  FslItemInterruptionsItems.Free;
   FslRemoteItems.Free;
 end;
 

@@ -16,9 +16,11 @@ private
   FbActive: boolean;
   FsKind: string;
   FsName: string;
+  FsValue: string;
 published
   property kind: string read FsKind write FsKind;
   property name: string read FsName write FsName;
+  property value: string read FsValue write FsValue;
   property active: boolean read FbActive write FbActive;
 
   function ToString: string; override;

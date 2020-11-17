@@ -4,14 +4,14 @@
     <PathDelim Value="\"/>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="30">
+    <Units Count="35">
       <Unit0>
         <Filename Value="mote.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="62"/>
-        <CursorPos Y="94"/>
-        <UsageCount Value="82"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="63"/>
+        <CursorPos X="61" Y="87"/>
+        <UsageCount Value="87"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -20,13 +20,12 @@
         <ComponentName Value="frmMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="329"/>
-        <CursorPos X="91" Y="333"/>
-        <UsageCount Value="82"/>
-        <Bookmarks Count="3">
-          <Item0 X="7" Y="345" ID="1"/>
-          <Item1 Y="364" ID="2"/>
-          <Item2 X="11" Y="423" ID="3"/>
+        <TopLine Value="442"/>
+        <CursorPos X="105" Y="457"/>
+        <UsageCount Value="87"/>
+        <Bookmarks Count="2">
+          <Item0 Y="481" ID="2"/>
+          <Item1 X="11" Y="549" ID="3"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -38,7 +37,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="122"/>
         <CursorPos Y="128"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
       </Unit2>
       <Unit3>
         <Filename Value="uusercodeseditor.pas"/>
@@ -47,7 +46,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uUserCodesEditor"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
       </Unit3>
       <Unit4>
         <Filename Value="uitemframebase.pas"/>
@@ -56,10 +55,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
         <UnitName Value="uItemFrameBase"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="402"/>
-        <CursorPos X="59" Y="419"/>
-        <UsageCount Value="82"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="230"/>
+        <CursorPos X="136" Y="250"/>
+        <UsageCount Value="87"/>
+        <Bookmarks Count="1">
+          <Item0 X="3" Y="247" ID="1"/>
+        </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit4>
@@ -70,7 +72,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="164"/>
         <CursorPos X="93" Y="173"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
       </Unit5>
       <Unit6>
         <Filename Value="umoteutils.pas"/>
@@ -79,7 +81,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="43"/>
         <CursorPos X="43" Y="69"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
       </Unit6>
       <Unit7>
         <Filename Value="ulocalstorage.pas"/>
@@ -88,7 +90,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="128"/>
         <CursorPos X="43" Y="140"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
       </Unit7>
       <Unit8>
         <Filename Value="dtos\ueventdto.pas"/>
@@ -97,16 +99,16 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="34"/>
         <CursorPos Y="57"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
       </Unit8>
       <Unit9>
         <Filename Value="dtos\uitemdto.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uItemDto"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="16"/>
         <TopLine Value="29"/>
         <CursorPos X="32" Y="44"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
         <Loaded Value="True"/>
       </Unit9>
       <Unit10>
@@ -119,7 +121,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="270"/>
         <CursorPos Y="285"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
       </Unit10>
       <Unit11>
         <Filename Value="uitemframeweekcompact.pas"/>
@@ -131,7 +133,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="110"/>
         <CursorPos X="96" Y="121"/>
-        <UsageCount Value="82"/>
+        <UsageCount Value="87"/>
         <Bookmarks Count="1">
           <Item0 X="16" Y="113" ID="1"/>
         </Bookmarks>
@@ -142,35 +144,34 @@
         <UnitName Value="uDateIntervalParamDto"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="92" Y="20"/>
-        <UsageCount Value="76"/>
+        <UsageCount Value="81"/>
       </Unit12>
       <Unit13>
         <Filename Value="upomodoro.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uPomodoro"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="62"/>
-        <CursorPos X="51" Y="76"/>
-        <UsageCount Value="70"/>
+        <CursorPos X="70" Y="78"/>
+        <UsageCount Value="75"/>
         <Loaded Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="dtos\usettingitembase.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uSettingItemBase"/>
-        <EditorIndex Value="5"/>
-        <CursorPos X="16" Y="20"/>
-        <UsageCount Value="68"/>
+        <EditorIndex Value="12"/>
+        <CursorPos X="22"/>
+        <UsageCount Value="73"/>
         <Loaded Value="True"/>
       </Unit14>
       <Unit15>
         <Filename Value="dtos\usettingporomodoroitemdto.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uSettingPoromodoroItemDto"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="11"/>
         <CursorPos X="38" Y="8"/>
-        <UsageCount Value="68"/>
+        <UsageCount Value="73"/>
         <Loaded Value="True"/>
       </Unit15>
       <Unit16>
@@ -183,27 +184,41 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="15"/>
         <CursorPos X="129" Y="26"/>
-        <UsageCount Value="38"/>
+        <UsageCount Value="43"/>
       </Unit16>
       <Unit17>
         <Filename Value="dtos\usettingitemuridto.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="13"/>
         <CursorPos X="44" Y="7"/>
-        <UsageCount Value="29"/>
+        <UsageCount Value="34"/>
         <Loaded Value="True"/>
       </Unit17>
       <Unit18>
         <Filename Value="dtos\usettingnewitemoptionsdto.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="uSettingNewItemOptionsDto"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="14"/>
         <TopLine Value="44"/>
         <CursorPos X="24" Y="61"/>
-        <UsageCount Value="28"/>
+        <UsageCount Value="33"/>
         <Loaded Value="True"/>
       </Unit18>
       <Unit19>
+        <Filename Value="utodaysumaryframe.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="TodaySumaryFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="uTodaySumaryFrame"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="55"/>
+        <CursorPos Y="74"/>
+        <UsageCount Value="24"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit19>
+      <Unit20>
         <Filename Value="uitemframecompact.pas"/>
         <ComponentName Value="TItemFrameCompact"/>
         <HasResources Value="True"/>
@@ -212,192 +227,233 @@
         <TopLine Value="94"/>
         <CursorPos X="16" Y="102"/>
         <UsageCount Value="7"/>
-      </Unit19>
-      <Unit20>
+      </Unit20>
+      <Unit21>
         <Filename Value="C:\Users\maxback\Downloads\uitemframecompact.pas"/>
         <UnitName Value="uItemFrameCompact"/>
         <CursorPos Y="10"/>
         <UsageCount Value="7"/>
-      </Unit20>
-      <Unit21>
+      </Unit21>
+      <Unit22>
         <Filename Value="C:\lazarus\lcl\include\application.inc"/>
         <TopLine Value="2224"/>
         <CursorPos Y="2239"/>
         <UsageCount Value="9"/>
-      </Unit21>
-      <Unit22>
+      </Unit22>
+      <Unit23>
         <Filename Value="C:\lazarus\lcl\include\customform.inc"/>
         <TopLine Value="2058"/>
         <CursorPos Y="2069"/>
         <UsageCount Value="9"/>
-      </Unit22>
-      <Unit23>
+      </Unit23>
+      <Unit24>
         <Filename Value="dtos\uDateIntervaldto.pas"/>
         <UnitName Value="uDateIntervalDto"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="7"/>
         <UsageCount Value="7"/>
-      </Unit23>
-      <Unit24>
-        <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\fgl.pp"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="1061"/>
-        <CursorPos Y="1079"/>
-        <UsageCount Value="26"/>
       </Unit24>
       <Unit25>
+        <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\fgl.pp"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="1097"/>
+        <CursorPos Y="1114"/>
+        <UsageCount Value="26"/>
+        <Loaded Value="True"/>
+      </Unit25>
+      <Unit26>
         <Filename Value="C:\lazarus\lcl\include\wincontrol.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="6653"/>
         <CursorPos X="126" Y="6662"/>
         <UsageCount Value="11"/>
-      </Unit25>
-      <Unit26>
-        <Filename Value="C:\lazarus\lcl\controls.pp"/>
-        <UnitName Value="Controls"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="11"/>
       </Unit26>
       <Unit27>
+        <Filename Value="C:\lazarus\lcl\controls.pp"/>
+        <UnitName Value="Controls"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="1085"/>
+        <CursorPos X="3" Y="1102"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit27>
+      <Unit28>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\packages\fcl-json\src\fpjsonrtti.pp"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="6"/>
         <UsageCount Value="11"/>
-      </Unit27>
-      <Unit28>
+      </Unit28>
+      <Unit29>
         <Filename Value="C:\lazarus\lcl\lclmessageglue.pas"/>
         <UnitName Value="LCLMessageGlue"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="98"/>
         <CursorPos X="86" Y="119"/>
         <UsageCount Value="11"/>
-      </Unit28>
-      <Unit29>
+      </Unit29>
+      <Unit30>
         <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\classes\collect.inc"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="15"/>
         <TopLine Value="86"/>
         <CursorPos X="57" Y="105"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="14"/>
         <Loaded Value="True"/>
-      </Unit29>
+      </Unit30>
+      <Unit31>
+        <Filename Value="C:\lazarus\lcl\include\interfacebase.inc"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="37"/>
+        <CursorPos X="45" Y="49"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="C:\lazarus\lcl\forms.pp"/>
+        <UnitName Value="Forms"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="138"/>
+        <CursorPos X="3" Y="155"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="C:\lazarus\lcl\lclclasses.pp"/>
+        <UnitName Value="LCLClasses"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="37"/>
+        <CursorPos X="3" Y="42"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="C:\lazarus\fpc\3.2.0\source\rtl\objpas\classes\classesh.inc"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="1888"/>
+        <CursorPos X="13" Y="1894"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit34>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="main.pas"/>
-        <Caret Line="130" Column="19" TopLine="104"/>
+        <Filename Value="utodaysumaryframe.pas"/>
+        <Caret Line="68" TopLine="55"/>
       </Position1>
       <Position2>
-        <Filename Value="main.pas"/>
+        <Filename Value="utodaysumaryframe.pas"/>
+        <Caret Line="69" TopLine="55"/>
       </Position2>
       <Position3>
-        <Filename Value="main.pas"/>
-        <Caret Line="79" Column="27" TopLine="52"/>
+        <Filename Value="utodaysumaryframe.pas"/>
+        <Caret Line="70" TopLine="55"/>
       </Position3>
       <Position4>
-        <Filename Value="main.pas"/>
-        <Caret Line="373" Column="3" TopLine="368"/>
+        <Filename Value="utodaysumaryframe.pas"/>
+        <Caret Line="71" TopLine="55"/>
       </Position4>
       <Position5>
-        <Filename Value="main.pas"/>
-        <Caret Line="72" Column="15" TopLine="56"/>
+        <Filename Value="utodaysumaryframe.pas"/>
+        <Caret Line="72" TopLine="55"/>
       </Position5>
       <Position6>
-        <Filename Value="uitemframebase.pas"/>
-        <Caret Line="378" Column="46" TopLine="362"/>
+        <Filename Value="utodaysumaryframe.pas"/>
+        <Caret Line="74" TopLine="55"/>
       </Position6>
       <Position7>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="256" TopLine="248"/>
+        <Caret Line="219" Column="78" TopLine="205"/>
       </Position7>
       <Position8>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="248" Column="50" TopLine="243"/>
+        <Caret Line="220" Column="78" TopLine="206"/>
       </Position8>
       <Position9>
-        <Filename Value="upomodoro.pas"/>
-        <Caret Line="77" Column="20" TopLine="60"/>
+        <Filename Value="uitemframebase.pas"/>
+        <Caret Line="219" Column="78" TopLine="205"/>
       </Position9>
       <Position10>
-        <Filename Value="upomodoro.pas"/>
-        <Caret Line="203" TopLine="170"/>
+        <Filename Value="uitemframebase.pas"/>
+        <Caret Line="218" Column="78" TopLine="204"/>
       </Position10>
       <Position11>
-        <Filename Value="upomodoro.pas"/>
-        <Caret Line="149" Column="42" TopLine="133"/>
+        <Filename Value="uitemframebase.pas"/>
+        <Caret Line="217" Column="78" TopLine="203"/>
       </Position11>
       <Position12>
-        <Filename Value="upomodoro.pas"/>
-        <Caret Line="79" Column="22" TopLine="63"/>
+        <Filename Value="uitemframebase.pas"/>
+        <Caret Line="216" Column="78" TopLine="202"/>
       </Position12>
       <Position13>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="264" Column="68" TopLine="243"/>
+        <Caret Line="220" Column="78" TopLine="206"/>
       </Position13>
       <Position14>
         <Filename Value="uitemframebase.pas"/>
+        <Caret Line="219" Column="78" TopLine="205"/>
       </Position14>
       <Position15>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="42" Column="28" TopLine="14"/>
+        <Caret Line="218" Column="78" TopLine="204"/>
       </Position15>
       <Position16>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="65" Column="38" TopLine="38"/>
+        <Caret Line="217" Column="78" TopLine="203"/>
       </Position16>
       <Position17>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="180" Column="49" TopLine="152"/>
+        <Caret Line="216" Column="78" TopLine="202"/>
       </Position17>
       <Position18>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="419" Column="115" TopLine="402"/>
+        <Caret Line="220" Column="78" TopLine="206"/>
       </Position18>
       <Position19>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="412" Column="84" TopLine="402"/>
+        <Caret Line="227" Column="70" TopLine="206"/>
       </Position19>
       <Position20>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="260" Column="70" TopLine="222"/>
       </Position20>
       <Position21>
         <Filename Value="uitemframebase.pas"/>
+        <Caret Line="42" Column="37" TopLine="14"/>
       </Position21>
       <Position22>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="42" Column="28" TopLine="14"/>
+        <Caret Line="68" Column="47" TopLine="41"/>
       </Position22>
       <Position23>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="65" Column="38" TopLine="38"/>
+        <Caret Line="218" Column="58" TopLine="190"/>
       </Position23>
       <Position24>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="180" Column="49" TopLine="152"/>
+        <Caret Line="402" Column="27" TopLine="376"/>
       </Position24>
       <Position25>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="414" Column="80" TopLine="403"/>
+        <Caret Line="422" TopLine="396"/>
       </Position25>
       <Position26>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="122" Column="92" TopLine="104"/>
+        <Caret Line="247" Column="40" TopLine="245"/>
       </Position26>
       <Position27>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="173" Column="38" TopLine="145"/>
+        <Caret Line="6" Column="32"/>
       </Position27>
       <Position28>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="429" Column="100" TopLine="408"/>
+        <Caret Line="9" Column="39"/>
       </Position28>
       <Position29>
         <Filename Value="uitemframebase.pas"/>
-        <Caret Line="419" Column="59" TopLine="402"/>
+        <Caret Line="247" Column="11" TopLine="230"/>
       </Position29>
       <Position30>
-        <Filename Value="mote.lpr"/>
-        <Caret Line="94" TopLine="62"/>
+        <Filename Value="uitemframebase.pas"/>
+        <Caret Line="250" Column="136" TopLine="230"/>
       </Position30>
     </JumpHistory>
     <RunParams>
@@ -406,34 +462,34 @@
     </RunParams>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="6">
+    <BreakPoints Count="11">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="uitemframebase.pas"/>
-        <Line Value="242"/>
+        <Line Value="281"/>
       </Item1>
       <Item2>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="uitemframebase.pas"/>
-        <Line Value="405"/>
+        <Line Value="440"/>
       </Item2>
       <Item3>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="uitemframebase.pas"/>
-        <Line Value="200"/>
+        <Line Value="208"/>
       </Item3>
       <Item4>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
         <Source Value="uitemframebase.pas"/>
-        <Line Value="206"/>
+        <Line Value="214"/>
       </Item4>
       <Item5>
         <Kind Value="bpkSource"/>
@@ -449,6 +505,42 @@
         <Source Value="umoteutils.pas"/>
         <Line Value="69"/>
       </Item6>
+      <Item7>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="uitemframebase.pas"/>
+        <Line Value="232"/>
+      </Item7>
+      <Item8>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="uitemframebase.pas"/>
+        <Line Value="224"/>
+      </Item8>
+      <Item9>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Expression Value="pbForceHasUpdated"/>
+        <Source Value="uitemframebase.pas"/>
+        <Line Value="655"/>
+      </Item9>
+      <Item10>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="main.pas"/>
+        <Line Value="426"/>
+      </Item10>
+      <Item11>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="main.pas"/>
+        <Line Value="415"/>
+      </Item11>
     </BreakPoints>
   </Debugging>
 </CONFIG>

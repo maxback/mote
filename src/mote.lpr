@@ -10,7 +10,8 @@ uses
   Forms, sysUtils, main, uMoteMessage, uUserCodesEditor, uItemFrameBase,
   uTimeEngine, uMoteUtils, uLocalStorage, uEventDto, uItemDto, uWeek,
   uItemFrameWeekCompact, uDateIntervalParamDto, uPomodoro, uSettingItemBase,
-  uSettingPoromodoroItemDto, uTextEditor, usettingitemuridto, uSettingNewItemOptionsDto;
+  uSettingPoromodoroItemDto, uTextEditor, usettingitemuridto,
+  uSettingNewItemOptionsDto, uTodaySumaryFrame;
 
 {$R *.res}
 var

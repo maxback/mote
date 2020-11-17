@@ -1,0 +1,8 @@
+{
+    "kind": "local-pomodoro",
+    "name": "pomodoro",
+    "workintervalMinutes": 25,
+    "shortBreakMinutes": 5,
+    "alarmFilename": "C:\\Windows\\media\\Alarm01.wav",
+    "active": true
+}
