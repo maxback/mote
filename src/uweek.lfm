@@ -11,16 +11,6 @@ object frmWeek: TfrmWeek
   OnResize = FormResize
   LCLVersion = '2.0.10.0'
   WindowState = wsMaximized
-  object ListBoxMessages: TListBox
-    Left = 0
-    Height = 162
-    Top = 492
-    Width = 931
-    Align = alBottom
-    ItemHeight = 0
-    ScrollWidth = 929
-    TabOrder = 0
-  end
   object GroupBox: TGroupBox
     Left = 0
     Height = 73
@@ -30,7 +20,7 @@ object frmWeek: TfrmWeek
     ClientHeight = 53
     ClientWidth = 927
     PopupMenu = PopupMenuItem
-    TabOrder = 1
+    TabOrder = 0
     object edtDate: TEdit
       Left = 112
       Height = 23
@@ -64,29 +54,29 @@ object frmWeek: TfrmWeek
   end
   object Panel: TPanel
     Left = 0
-    Height = 389
+    Height = 581
     Top = 73
     Width = 931
     Align = alClient
-    ClientHeight = 389
+    ClientHeight = 581
     ClientWidth = 931
-    TabOrder = 2
+    TabOrder = 1
     OnClick = PanelClick
     object GroupBox1: TGroupBox
       Left = 1
-      Height = 387
+      Height = 579
       Top = 1
       Width = 185
       Align = alLeft
       Caption = ' Segunda-Feira '
-      ClientHeight = 367
+      ClientHeight = 559
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 0
       object ScrollBox1: TScrollBox
         Left = 0
-        Height = 352
+        Height = 544
         Top = 15
         Width = 181
         HorzScrollBar.Page = 1
@@ -107,19 +97,19 @@ object frmWeek: TfrmWeek
     end
     object GroupBox2: TGroupBox
       Left = 186
-      Height = 387
+      Height = 579
       Top = 1
       Width = 185
       Align = alLeft
       Caption = ' Terça-Feira '
-      ClientHeight = 367
+      ClientHeight = 559
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 1
       object ScrollBox2: TScrollBox
         Left = 0
-        Height = 352
+        Height = 544
         Top = 15
         Width = 181
         HorzScrollBar.Page = 1
@@ -140,19 +130,19 @@ object frmWeek: TfrmWeek
     end
     object GroupBox3: TGroupBox
       Left = 371
-      Height = 387
+      Height = 579
       Top = 1
       Width = 185
       Align = alLeft
       Caption = ' Quarta-Feira '
-      ClientHeight = 367
+      ClientHeight = 559
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 2
       object ScrollBox3: TScrollBox
         Left = 0
-        Height = 352
+        Height = 544
         Top = 15
         Width = 181
         HorzScrollBar.Page = 1
@@ -173,19 +163,19 @@ object frmWeek: TfrmWeek
     end
     object GroupBox4: TGroupBox
       Left = 556
-      Height = 387
+      Height = 579
       Top = 1
       Width = 185
       Align = alLeft
       Caption = ' Quinta-Feira '
-      ClientHeight = 367
+      ClientHeight = 559
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 3
       object ScrollBox4: TScrollBox
         Left = 0
-        Height = 352
+        Height = 544
         Top = 15
         Width = 181
         HorzScrollBar.Page = 1
@@ -206,19 +196,19 @@ object frmWeek: TfrmWeek
     end
     object GroupBox5: TGroupBox
       Left = 741
-      Height = 387
+      Height = 579
       Top = 1
       Width = 185
       Align = alLeft
       Caption = ' Sexta-Feira '
-      ClientHeight = 367
+      ClientHeight = 559
       ClientWidth = 181
       Color = clWhite
       ParentColor = False
       TabOrder = 4
       object ScrollBox5: TScrollBox
         Left = 0
-        Height = 352
+        Height = 544
         Top = 15
         Width = 181
         HorzScrollBar.Page = 1
@@ -237,25 +227,6 @@ object frmWeek: TfrmWeek
         ParentColor = False
       end
     end
-  end
-  object Splitter1: TSplitter
-    Cursor = crVSplit
-    Left = 0
-    Height = 5
-    Top = 487
-    Width = 931
-    Align = alBottom
-    ResizeAnchor = akBottom
-  end
-  object Button1: TButton
-    Left = 0
-    Height = 25
-    Top = 462
-    Width = 931
-    Align = alBottom
-    Caption = 'Limpar'
-    OnClick = Button1Click
-    TabOrder = 4
   end
   object PopupMenuItem: TPopupMenu
     Left = 368

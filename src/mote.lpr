@@ -11,7 +11,7 @@ uses
   uTimeEngine, uMoteUtils, uLocalStorage, uEventDto, uItemDto, uWeek,
   uItemFrameWeekCompact, uDateIntervalParamDto, uPomodoro, uSettingItemBase,
   uSettingPoromodoroItemDto, uTextEditor, usettingitemuridto,
-  uSettingNewItemOptionsDto, uTodaySumaryFrame;
+  uSettingNewItemOptionsDto, uTodaySumaryFrame, uEditTimeIntervalItem;
 
 {$R *.res}
 var
@@ -28,6 +28,7 @@ begin
   Application.Initialize;
   Application.CreateForm(TfrmMain, frmMain);
   Application.CreateForm(TfrmWeek, frmWeek);
+  Application.CreateForm(TfrmTextEditorDialog, frmTextEditorDialog);
 
   te := TTimeEngine.Create;
   lsi := TLocalStorage.Create(ExtractFilePath(ParamStr(0))+'localstorage'+PathDelim+'items'+PathDelim, 'item', lskData);
@@ -73,7 +74,6 @@ begin
 
     e.event:= 'create';
     mcapp.Publish('app', e.ToString);
-  Application.CreateForm(TfrmTextEditorDialog, frmTextEditorDialog);
     Application.Run;
   finally
     frmMain.MessageClient := nil;

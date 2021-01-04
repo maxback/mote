@@ -15,48 +15,30 @@ object frmMain: TfrmMain
   WindowState = wsMaximized
   object ScrollBoxMain: TScrollBox
     Left = 0
-    Height = 314
-    Top = 55
+    Height = 187
+    Top = 142
     Width = 788
     HorzScrollBar.Page = 1
     VertScrollBar.Page = 1
     Align = alClient
     TabOrder = 0
   end
-  object ListBoxMessages: TListBox
-    Left = 0
-    Height = 80
-    Top = 399
-    Width = 788
-    Align = alBottom
-    ItemHeight = 0
-    ScrollWidth = 786
-    TabOrder = 1
-  end
-  object Splitter1: TSplitter
+  object Splitter: TSplitter
     Cursor = crVSplit
     Left = 0
     Height = 5
-    Top = 394
+    Top = 137
     Width = 788
-    Align = alBottom
-    ResizeAnchor = akBottom
-  end
-  object Button1: TButton
-    Left = 0
-    Height = 25
-    Top = 369
-    Width = 788
-    Align = alBottom
-    Caption = 'Limpar'
-    OnClick = Button1Click
-    TabOrder = 3
+    Align = alTop
+    ResizeAnchor = akTop
+    Visible = False
   end
   object imFundo: TImage
-    Left = 64
+    Left = 32
     Height = 480
-    Top = -178
+    Top = -208
     Width = 1080
+    Anchors = [akTop, akLeft, akRight]
     Picture.Data = {
       1754506F727461626C654E6574776F726B4772617068696310370E0089504E47
       0D0A1A0A0000000D49484452000004380000021C080600000013FD1E95000000
@@ -29177,93 +29159,155 @@ object frmMain: TfrmMain
   end
   object PanelActions: TPanel
     Left = 0
-    Height = 55
+    Height = 137
     Top = 0
     Width = 788
     Align = alTop
-    ClientHeight = 55
+    ClientHeight = 137
     ClientWidth = 788
-    TabOrder = 4
+    TabOrder = 2
     Visible = False
     object SpeedButton1: TSpeedButton
       Left = 6
       Height = 43
-      Top = 6
+      Top = 90
       Width = 42
       Action = acAddItem
-      Align = alLeft
+      Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 5
     end
     object SpeedButton2: TSpeedButton
-      Left = 53
+      Left = 6
       Height = 43
-      Top = 6
+      Top = 8
       Width = 42
       Action = acShowWeek
-      Align = alLeft
       BorderSpacing.Around = 5
     end
     object btnRemoteNewItem: TSpeedButton
       Left = 693
       Height = 43
-      Top = 6
+      Top = 90
       Width = 42
       Action = acMoveTodayToForward
-      Align = alRight
+      Anchors = [akRight, akBottom]
       BorderSpacing.Around = 5
     end
-    inline FrameSumary: TTodaySumaryFrame
-      Left = 194
-      Height = 53
-      Top = 1
-      Width = 494
-      Align = alClient
-      ClientHeight = 53
-      ClientWidth = 494
-      Color = 16054736
-      ParentColor = False
-      inherited lbTop: TLabel
-        Width = 494
-        Color = 16121560
-      end
-      inherited pnClient: TPanel
-        Height = 38
-        Width = 494
-        ClientHeight = 38
-        ClientWidth = 494
-        inherited lbList: TLabel
-          Height = 38
-          Width = 494
-          WordWrap = True
-        end
-      end
-    end
     object SpeedButton3: TSpeedButton
-      Left = 100
+      Left = 53
       Height = 43
-      Top = 6
+      Top = 8
       Width = 42
       Action = acFilterSumary
-      Align = alLeft
       BorderSpacing.Around = 5
     end
     object SpeedButton4: TSpeedButton
-      Left = 147
+      Left = 53
       Height = 43
-      Top = 6
+      Top = 90
       Width = 42
       Action = acMoveTodayToPrev
-      Align = alLeft
+      Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 5
     end
     object btnRemoteNewItem1: TSpeedButton
       Left = 740
       Height = 43
-      Top = 6
+      Top = 90
       Width = 42
       Action = acAddRemoteItem
-      Align = alRight
+      Anchors = [akRight, akBottom]
       BorderSpacing.Around = 5
+    end
+    inline FrameSumary: TTodaySumaryFrame
+      Left = 106
+      Height = 138
+      Top = 1
+      Width = 582
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      ClientHeight = 138
+      ClientWidth = 582
+      inherited lbTop: TLabel
+        Width = 582
+      end
+      inherited pnClient: TPanel
+        Height = 16
+        Top = 118
+        Width = 582
+        Align = alBottom
+        ClientHeight = 16
+        ClientWidth = 582
+        inherited lbList: TLabel
+          Height = 15
+          Top = 1
+          Width = 582
+          Align = alBottom
+        end
+      end
+      inherited lb: TListBox
+        Height = 4
+        Top = 134
+        Width = 582
+      end
+      inherited PanelTimeTrack: TPanel
+        Height = 103
+        Width = 582
+        Align = alClient
+        ClientHeight = 103
+        ClientWidth = 582
+        inherited sbPositionLess: TSpeedButton
+          Height = 101
+        end
+        inherited sbPositionPlus: TSpeedButton
+          Left = 554
+          Height = 101
+        end
+        inherited pbTimeTrack: TPaintBox
+          Height = 101
+          Width = 526
+        end
+      end
+    end
+  end
+  object pnLog: TPanel
+    Left = 0
+    Height = 150
+    Top = 329
+    Width = 788
+    Align = alBottom
+    ClientHeight = 150
+    ClientWidth = 788
+    TabOrder = 3
+    Visible = False
+    object Button1: TButton
+      Left = 1
+      Height = 25
+      Top = 1
+      Width = 786
+      Align = alTop
+      Caption = 'Limpar Log'
+      OnClick = Button1Click
+      TabOrder = 0
+    end
+    object mmMessages: TMemo
+      Left = 1
+      Height = 123
+      Top = 26
+      Width = 786
+      Align = alClient
+      Color = clWindowFrame
+      Font.CharSet = OEM_CHARSET
+      Font.Color = clWhite
+      Font.Height = -12
+      Font.Name = 'Terminal'
+      Font.Pitch = fpFixed
+      Font.Quality = fqDraft
+      Lines.Strings = (
+        'Logs:'
+      )
+      ParentFont = False
+      ScrollBars = ssAutoBoth
+      TabOrder = 1
     end
   end
   object MainMenu: TMainMenu
@@ -29291,6 +29335,11 @@ object frmMain: TfrmMain
       object miAtivartimer: TMenuItem
         Action = acTimerActivate
         Caption = 'Ativar Timer para tempo correndo'
+      end
+      object miLogMessages: TMenuItem
+        Caption = 'Log de mensagens (baixo nível)'
+        Checked = True
+        OnClick = miLogMessagesClick
       end
     end
   end
@@ -29553,6 +29602,7 @@ object frmMain: TfrmMain
     Top = 202
   end
   object TimerInitalizationAnimate: TTimer
+    Interval = 5000
     OnTimer = TimerInitalizationAnimateTimer
     Left = 56
     Top = 160

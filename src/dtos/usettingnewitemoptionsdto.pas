@@ -16,7 +16,7 @@ type
     FsDescription: string;
     FsExternalToolItem: string;
     FsTitle: string;
-
+    FsTimeIntervals: string;
   public
     function ToString: string; override;
     constructor CreateFromJSON(const psJSONString: string);
@@ -24,6 +24,7 @@ type
     property title: string read FsTitle write FsTitle;
     property description: string read FsDescription write FsDescription;
     property externalToolItem: string read FsExternalToolItem write FsExternalToolItem;
+    property timeIntervals: string read FsTimeIntervals write FsTimeIntervals;
   end;
 
   { TSettingNewItemOptionsItemDto }

@@ -61,6 +61,7 @@ type
     mmDescription: TMemo;
     mmTimeOfLabel: TMemo;
     pnTimeButton: TPanel;
+    Shape: TShape;
     procedure btnChangeSizeLessClick(Sender: TObject);
     procedure btnChangeSizePlussClick(Sender: TObject);
     procedure btnEditDescExternalClick(Sender: TObject);
@@ -68,6 +69,7 @@ type
     procedure btnNewItemwithSelectTimeIntervalClick(Sender: TObject);
     procedure edtExternalToolItemDblClick(Sender: TObject);
     procedure edtPutOkOnItemIntervalClick(Sender: TObject);
+    procedure GenericOnEnter(Sender: TObject);
     procedure lbDescriptionDbClick(Sender: TObject);
     procedure btnEditDescriptionExit(Sender: TObject);
     procedure btnEditExternalToolItemClick(Sender: TObject);
@@ -88,6 +90,8 @@ type
     procedure lbTimeExit(Sender: TObject);
     procedure mmDescriptionDblClick(Sender: TObject);
     procedure mmDescriptionExit(Sender: TObject);
+    procedure mmDescriptionKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure mmTimeOfLabelExit(Sender: TObject);
     procedure TratarMouseSobreTextos(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
@@ -124,6 +128,7 @@ type
     function InterruptWork: boolean; virtual;
     function DoOnvent(const psEvent: string; const poParam: TObject): boolean; virtual;
     function TestarCampoTotalmenteVisivel(Sender: TObject): boolean;
+    procedure OpenURLFromDescription; virtual;
   public
     property Id: string read GetId write SetId;
     property ExternalToolItem: string read GetExternalToolItem write SetExternalToolItem;
@@ -153,7 +158,7 @@ type
 implementation
 
 uses
-  uMoteUtils;
+  uMoteUtils, uEditTimeIntervalItem;
 
 {$R *.lfm}
 
@@ -180,6 +185,7 @@ end;
 
 procedure TItemFrameBase.btnEditTitleClick(Sender: TObject);
 begin
+  GenericOnEnter(Sender);
   edtTitle.Text := FoItem.Title;
   lblTitle.Visible := False;
   edtTitle.Visible := True;
@@ -275,6 +281,11 @@ begin
   end;
 end;
 
+procedure TItemFrameBase.GenericOnEnter(Sender: TObject);
+begin
+  pnTimeButton.Visible := false;
+end;
+
 procedure TItemFrameBase.btnEditDescExternalClick(Sender: TObject);
 begin
 
@@ -362,7 +373,7 @@ begin
     try
       sl.Text := FoItem.TimeIntervals;
       s := sl[lbTime.ItemIndex];
-      if not InputQuery('Editar intervalo', 'Respeite o formato dd/mm/yyyy hh:mm - hh:mm, senão...!', s) then
+      if not TfrmEditTimeIntervalItem.Execute('Editar intervalo', 'Respeite o formato dd/mm/yyyy hh:mm - hh:mm, senão...!', s) then
         exit;
       sl[lbTime.ItemIndex] := s;
       FoItem.TimeIntervals := sl.Text;
@@ -417,6 +428,7 @@ end;
 
 procedure TItemFrameBase.lbTimeClick(Sender: TObject);
 begin
+  GenericOnEnter(Sender);
   //start edit mode to time inervals
   pnTimeButton.Visible := true;
 end;
@@ -431,8 +443,38 @@ begin
   mmTimeOfLabel.Visible := false;
 end;
 
+procedure TItemFrameBase.OpenURLFromDescription;
+var
+  n, n2, i1, i2: integer;
+  s: string;
+begin
+  //obtain a link in corrient item
+  n2 := 0;
+  i1 := mmDescription.SelStart;
+  for n := 0 to mmDescription.Lines.Count-1 do
+  begin
+    n2 := n2 + Length(mmDescription.Lines.Strings[n]) + 2; ///r/n
+    if n2 >= i1 then
+    begin
+      i2 := Pos('http', mmDescription.Lines.Strings[n]);
+      if i2 > 0 then
+      begin
+        s := Copy(mmDescription.Lines.Strings[n], i2, Length(mmDescription.Lines.Strings[n]));
+        OpenURL(s);
+        exit;
+      end;
+      break;
+    end;
+  end;
+
+  s := mmDescription.SelText;
+  if Pos('http', s) = 1 then
+    OpenURL(s);
+end;
+
 procedure TItemFrameBase.mmDescriptionDblClick(Sender: TObject);
 begin
+  OpenURLFromDescription;
 end;
 
 procedure TItemFrameBase.mmDescriptionExit(Sender: TObject);
@@ -440,6 +482,13 @@ begin
   mmDescription.Visible := False;
   FoItem.Description:=mmDescription.Lines.Text;
   Update(true);
+end;
+
+procedure TItemFrameBase.mmDescriptionKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (Key = 13) and (mmDescription.SelLength > 0) then
+    OpenURLFromDescription;
 end;
 
 procedure TItemFrameBase.mmTimeOfLabelExit(Sender: TObject);

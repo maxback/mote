@@ -16,7 +16,6 @@ type
   TfrmWeek = class(TForm)
     btnPrevWeek: TBitBtn;
     btnNextWeek: TBitBtn;
-    Button1: TButton;
     edtDate: TEdit;
     GroupBox: TGroupBox;
     GroupBox1: TGroupBox;
@@ -29,7 +28,6 @@ type
     Label3: TLabel;
     Label4: TLabel;
     Label5: TLabel;
-    ListBoxMessages: TListBox;
     miInitWorkToday: TMenuItem;
     Panel: TPanel;
     PopupMenuItem: TPopupMenu;
@@ -38,7 +36,6 @@ type
     ScrollBox3: TScrollBox;
     ScrollBox4: TScrollBox;
     ScrollBox5: TScrollBox;
-    Splitter1: TSplitter;
     procedure btnNextWeekClick(Sender: TObject);
     procedure btnPrevWeekClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -64,7 +61,6 @@ type
       const psJSONItem: string);
     procedure AjustGroupBoxDayOfWeek(poInterval: TDateIntervalDto);
     procedure MessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
-    procedure MessagePublish(Sender: Tobject; const poMessage: TMoteMessage);
     procedure AddItemsToGui(const psJSONItem: string);
     procedure ClearAllItems;
     procedure UpdateItemToGui(const psJSONItem: string);
@@ -99,8 +95,6 @@ var
 begin
   e := TEventDto.CreateFromJSON(poMessage.Payload);
   try
-    ListBoxMessages.Items.Add('received < [' + FormatDateTime('hh:mm:ss.nnn', Now) + ' - ' + poMessage.Orign + ']: ' + poMessage.ToString);
-
     if e.event = 'item_restore' then
     begin
       AddItemsToGui(e.payload);
@@ -113,13 +107,6 @@ begin
   finally
     e.Free;
   end;
-end;
-
-procedure TfrmWeek.MessagePublish(Sender: Tobject; const poMessage: TMoteMessage
-  );
-begin
-  //only to gui log
-  ListBoxMessages.Items.Add(' sent > [' + FormatDateTime('hh:mm:ss.nnn', Now) + ' - ' + poMessage.Orign + ']: ' + poMessage.ToString);
 end;
 
 
@@ -221,7 +208,6 @@ begin
   if Assigned(FoMessageClient) then
   begin
     FoMessageClient.OnMessage := @MessageEvent;
-    FoMessageClient.OnPublish := @MessagePublish;
   end;
 end;
 
@@ -372,7 +358,6 @@ end;
 
 procedure TfrmWeek.Button1Click(Sender: TObject);
 begin
-  ListBoxMessages.Clear;
 end;
 
 procedure TfrmWeek.btnPrevWeekClick(Sender: TObject);

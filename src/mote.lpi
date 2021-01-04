@@ -41,7 +41,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="20">
+    <Units Count="21">
       <Unit0>
         <Filename Value="mote.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -160,6 +160,14 @@
         <ResourceBaseClass Value="Frame"/>
         <UnitName Value="uTodaySumaryFrame"/>
       </Unit19>
+      <Unit20>
+        <Filename Value="uedittimeintervalitem.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmEditTimeIntervalItem"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uEditTimeIntervalItem"/>
+      </Unit20>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

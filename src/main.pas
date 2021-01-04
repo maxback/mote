@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Menus,
   Buttons, ActnList, StdCtrls, fphttpclient, uItemFrameBase, uTodaySumaryFrame,
   uMoteMessage, uEventDto, uItemDto, uSettingItemUriDto, uSettingItemBase,
-  uSettingNewItemOptionsDto;
+  uSettingNewItemOptionsDto, uDateIntervalParamDto;
 
 type
 
@@ -27,8 +27,9 @@ type
     Button1: TButton;
     imFundo: TImage;
     ImageList: TImageList;
-    ListBoxMessages: TListBox;
     MainMenu: TMainMenu;
+    miLogMessages: TMenuItem;
+    mmMessages: TMemo;
     N1: TMenuItem;
     miAtivartimer: TMenuItem;
     miItemPopupDeleteItem: TMenuItem;
@@ -39,6 +40,7 @@ type
     miItem: TMenuItem;
     miExit: TMenuItem;
     miFile: TMenuItem;
+    pnLog: TPanel;
     PanelActions: TPanel;
     pmRemoteItems: TPopupMenu;
     PopupMenuItem: TPopupMenu;
@@ -48,10 +50,10 @@ type
     btnRemoteNewItem: TSpeedButton;
     SpeedButton3: TSpeedButton;
     SpeedButton4: TSpeedButton;
-    Splitter1: TSplitter;
+    Splitter: TSplitter;
     Timer: TTimer;
-    FrameSumary: TTodaySumaryFrame;
     TimerInitalizationAnimate: TTimer;
+    FrameSumary: TTodaySumaryFrame;
 
     procedure acFilterSumaryExecute(Sender: TObject);
     procedure acMoveTodayToForwardExecute(Sender: TObject);
@@ -70,6 +72,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure miItemPopupDeleteItemClick(Sender: TObject);
     procedure miItemPopupItemTextClick(Sender: TObject);
+    procedure miLogMessagesClick(Sender: TObject);
     procedure miUsertCodesEditorClick(Sender: TObject);
     procedure MessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
     procedure MessagePublish(Sender: Tobject; const poMessage: TMoteMessage);
@@ -85,6 +88,10 @@ type
     FslRemoteItems: TStringList;
     FslItemInterruptionsItems: TStringList;
     FdtToday: TDateTime;
+    FbTimerEnabledOld: boolean;
+
+    procedure SaveTimerEnabled;
+    procedure RestoreTimerEnabled;
 
     procedure GetRemoteNewItems(poItem: TSettingItemUriDto);
     procedure GetRemoteItemInterruptions(poItem: TSettingItemBaseDto);
@@ -126,7 +133,8 @@ var
 begin
   e := TEventDto.CreateFromJSON(poMessage.Payload);
   try
-    ListBoxMessages.Items.Add('received < [' + FormatDateTime('hh:mm:ss.nnn', Now) + ' - ' + poMessage.Orign + ']: ' + poMessage.ToString);
+    if miLogMessages.checked then
+      mmMessages.Lines.Add('received < [' + FormatDateTime('hh:mm:ss.nnn', Now) + ' - ' + poMessage.Orign + ']: ' + poMessage.ToString);
 
     if e.event = 'item_restore' then
     begin
@@ -157,7 +165,8 @@ procedure TfrmMain.MessagePublish(Sender: Tobject; const poMessage: TMoteMessage
   );
 begin
   //only to gui log
-  ListBoxMessages.Items.Add(' sent > [' + FormatDateTime('hh:mm:ss.nnn', Now) + ' - ' + poMessage.Orign + ']: ' + poMessage.ToString);
+  if miLogMessages.checked then
+    mmMessages.Lines.Add(' sent > [' + FormatDateTime('hh:mm:ss.nnn', Now) + ' - ' + poMessage.Orign + ']: ' + poMessage.ToString);
 end;
 
 function TfrmMain.ItemFrameBaseEvent(Sender: TObject; const psEvent: string;
@@ -236,6 +245,12 @@ end;
 procedure TfrmMain.TimerInitalizationAnimateTimer(Sender: TObject);
 begin
   PanelActions.Visible := true;
+  miLogMessages.Checked := false;
+
+  Timer.OnTimer(self);
+  miAtivartimer.Checked := false;
+  Timer.Enabled := false;
+
   TimerInitalizationAnimate.Enabled:=false;
 end;
 
@@ -323,11 +338,22 @@ begin
   end;
 end;
 
+procedure TfrmMain.SaveTimerEnabled;
+begin
+  FbTimerEnabledOld := Timer.Enabled;
+  Timer.Enabled := false;
+end;
+
+procedure TfrmMain.RestoreTimerEnabled;
+begin
+  Timer.Enabled := FbTimerEnabledOld;
+end;
+
 function TfrmMain.TestItemCanBeVisible(const poItem: TItemDto): boolean;
 var
   s: string;
 begin
-  s := poItem.TimeIntervals;
+  s := poItem.TimeIntervals + '|' + FormatDateTime('dd/mm/yyyy', poItem.CreationDateTime);
   if (s <> '') and (Pos(FormatDateTime('dd/mm/yyyy', Date), s) < 1) then
     exit(false)
   else
@@ -374,7 +400,8 @@ begin
   s := TFPHttpClient.SimpleGet(poItem.Uri);
   oResult := TSettingNewItemOptionsDto.Create(s);
   try
-    ListBoxMessages.Items.Add(Format('%d items from remote new items.', [oResult.items.Count]));
+    if miLogMessages.checked then
+      mmMessages.Lines.Add(Format('%d items from remote new items.', [oResult.items.Count]));
     for i := 0 to oResult.items.Count-1 do
     begin
       oCi := oResult.items.Items[i];
@@ -436,11 +463,16 @@ procedure TfrmMain.acFilterSumaryExecute(Sender: TObject);
 var
   s: string;
 begin
-  s := FrameSumary.Filter;
-  if InputQuery('Filtro','Informe o filtro dos intes no sumário', s) then
-  begin
-    FrameSumary.Filter:=s;
-    FrameSumary.Update;
+  SaveTimerEnabled;
+  try
+    s := FrameSumary.Filter;
+    if InputQuery('Filtro (Adicione ! antes para negar)','Informe o filtro dos intes no sumário', s) then
+    begin
+      FrameSumary.Filter:=s;
+      FrameSumary.Update;
+    end;
+  finally
+    RestoreTimerEnabled;
   end;
 end;
 
@@ -452,10 +484,22 @@ begin
 end;
 
 procedure TfrmMain.acMoveTodayToPrevExecute(Sender: TObject);
+var
+  oInterval: TDateIntervalDto;
 begin
   FdtToday := FdtToday - 1.0;
   FrameSumary.TodayValue:=FormatdateTime('dd/mm/yyyy', FdtToday);
   FrameSumary.Update;
+
+  if Assigned(FoMessageClient) then
+  begin
+    oInterval := TDateIntervalDto.CreateInterval(FdtToday, FdtToday);
+    try
+      FoMessageClient.Publish('date_interval_select', oInterval.ToString);
+    finally
+      oInterval.Free;
+    end;
+  end;
 end;
 
 procedure TfrmMain.GetRemoteItemInterruptions(poItem: TSettingItemBaseDto);
@@ -532,6 +576,9 @@ begin
     FoLastFrameInserted.Description:= oItem.description;
     FoLastFrameInserted.ExternalToolItem := oItem.externalToolItem;
 
+    FoLastFrameInserted.TimeIntervals.Text := oItem.timeIntervals;
+    FoLastFrameInserted.Item.TimeIntervals := oItem.timeIntervals;
+
     FoLastFrameInserted.OnEvent:=@ItemFrameBaseEvent;
 
     if Assigned(FoMessageClient) then
@@ -553,34 +600,39 @@ var
   s: string;
   e: TEventDto;
 begin
-  s := '';
-  if InputQuery('Novo item','Informe o Título', s) then
-  begin
-    FnContador := FnContador + 1;
-
-    FoLastFrameInserted := TItemFrameBase.Create(ScrollBoxMain);
-    FoLastFrameInserted.Name := 'Item_' + IntToStr(FnContador);
-    FoLastFrameInserted.Parent := ScrollBoxMain;
-
-    FoLastFrameInserted.Id := GetNewId;
-    FoLastFrameInserted.CreatedBy:=GetCurrentUserName;
-    FoLastFrameInserted.UserName:=GetCurrentUserName;
-    FoLastFrameInserted.Item.CreationDateTime:=now;
-    FoLastFrameInserted.Item.LastUpdateDateTime:=FoLastFrameInserted.Item.CreationDateTime;
-
-    FoLastFrameInserted.Title:=s;
-    FoLastFrameInserted.Description:='';
-    FoLastFrameInserted.OnEvent:=@ItemFrameBaseEvent;
-
-    if Assigned(FoMessageClient) then
+  SaveTimerEnabled;
+  try
+    s := '';
+    if InputQuery('Novo item','Informe o Título', s) then
     begin
-      e := TEventDto.CreateEventObject('item_create', FoLastFrameInserted.Item);
-      try
-        FoMessageClient.Publish('item', e.ToString);
-      finally
-        e.Free;
+      FnContador := FnContador + 1;
+
+      FoLastFrameInserted := TItemFrameBase.Create(ScrollBoxMain);
+      FoLastFrameInserted.Name := 'Item_' + IntToStr(FnContador);
+      FoLastFrameInserted.Parent := ScrollBoxMain;
+
+      FoLastFrameInserted.Id := GetNewId;
+      FoLastFrameInserted.CreatedBy:=GetCurrentUserName;
+      FoLastFrameInserted.UserName:=GetCurrentUserName;
+      FoLastFrameInserted.Item.CreationDateTime:=now;
+      FoLastFrameInserted.Item.LastUpdateDateTime:=FoLastFrameInserted.Item.CreationDateTime;
+
+      FoLastFrameInserted.Title:=s;
+      FoLastFrameInserted.Description:='';
+      FoLastFrameInserted.OnEvent:=@ItemFrameBaseEvent;
+
+      if Assigned(FoMessageClient) then
+      begin
+        e := TEventDto.CreateEventObject('item_create', FoLastFrameInserted.Item);
+        try
+          FoMessageClient.Publish('item', e.ToString);
+        finally
+          e.Free;
+        end;
       end;
     end;
+  finally
+    RestoreTimerEnabled;
   end;
 end;
 
@@ -610,7 +662,7 @@ end;
 
 procedure TfrmMain.Button1Click(Sender: TObject);
 begin
-  ListBoxMessages.Clear;
+  mmMessages.Clear;
 end;
 
 procedure TfrmMain.ControlBarClick(Sender: TObject);
@@ -670,6 +722,14 @@ begin
 
   s := FoLastFrameEventHandle.ToString;
   InputQuery('Texto do item','Informe o Título', s);
+end;
+
+procedure TfrmMain.miLogMessagesClick(Sender: TObject);
+begin
+  miLogMessages.Checked := not miLogMessages.Checked;
+  pnLog.Visible := miLogMessages.Checked;
+  Splitter.Visible := miLogMessages.Checked;
+  Splitter.Top := Height - pnLog.Height - 10;
 end;
 
 end.
