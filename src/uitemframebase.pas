@@ -40,7 +40,8 @@ type
     btnChangeSizeLess: TBitBtn;
     btnEditDescription: TBitBtn;
     btnNewItemwithSelectTimeInterval: TBitBtn;
-    edtDeleteTimeInterval: TBitBtn;
+    btnDeleteTimeInterval: TBitBtn;
+    btnDuplicateTimeInterval: TBitBtn;
     edtEditTimeInterval: TBitBtn;
     edtOptions: TBitBtn;
     btnEditTitle: TBitBtn;
@@ -64,11 +65,13 @@ type
     Shape: TShape;
     procedure btnChangeSizeLessClick(Sender: TObject);
     procedure btnChangeSizePlussClick(Sender: TObject);
+    procedure btnDuplicateTimeIntervalClick(Sender: TObject);
     procedure btnEditDescExternalClick(Sender: TObject);
     procedure btnEditDescriptionClick(Sender: TObject);
     procedure btnNewItemwithSelectTimeIntervalClick(Sender: TObject);
     procedure edtExternalToolItemDblClick(Sender: TObject);
     procedure edtPutOkOnItemIntervalClick(Sender: TObject);
+    procedure gbClick(Sender: TObject);
     procedure GenericOnEnter(Sender: TObject);
     procedure lbDescriptionDbClick(Sender: TObject);
     procedure btnEditDescriptionExit(Sender: TObject);
@@ -77,7 +80,7 @@ type
     procedure btnInitUnexpectedWorkClick(Sender: TObject);
     procedure btnInitWorkClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
-    procedure edtDeleteTimeIntervalClick(Sender: TObject);
+    procedure btnDeleteTimeIntervalClick(Sender: TObject);
     procedure edtEditTimeIntervalClick(Sender: TObject);
     procedure edtExternalToolItemExit(Sender: TObject);
     procedure edtOptionsClick(Sender: TObject);
@@ -281,6 +284,11 @@ begin
   end;
 end;
 
+procedure TItemFrameBase.gbClick(Sender: TObject);
+begin
+
+end;
+
 procedure TItemFrameBase.GenericOnEnter(Sender: TObject);
 begin
   pnTimeButton.Visible := false;
@@ -300,6 +308,28 @@ begin
   else
    Height := Height + FnOriginalHeight;
 lblDescription.ShowHint := Height = FnOriginalHeight;
+end;
+
+procedure TItemFrameBase.btnDuplicateTimeIntervalClick(Sender: TObject);
+var
+  sl: TStringList;
+  ii: integer;
+begin
+  if lbTime.ItemIndex >= 0 then
+  begin
+    ii := lbTime.ItemIndex;
+    sl := TStringList.Create;
+    try
+      sl.Text := FoItem.TimeIntervals;
+      sl.Insert(ii + 1, sl[ii]);
+      FoItem.TimeIntervals := sl.Text;
+      Update(true);
+      DoOnvent('item_time_edited', nil);
+      lbTime.ItemIndex := ii;
+    finally
+      sl.Free;
+    end;
+  end;
 end;
 
 procedure TItemFrameBase.btnChangeSizeLessClick(Sender: TObject);
@@ -343,7 +373,7 @@ begin
   Update(true);
 end;
 
-procedure TItemFrameBase.edtDeleteTimeIntervalClick(Sender: TObject);
+procedure TItemFrameBase.btnDeleteTimeIntervalClick(Sender: TObject);
 var
   sl: TStringList;
 begin
@@ -489,6 +519,12 @@ procedure TItemFrameBase.mmDescriptionKeyDown(Sender: TObject; var Key: Word;
 begin
   if (Key = 13) and (mmDescription.SelLength > 0) then
     OpenURLFromDescription;
+
+  if (Key = 83) and (ssCtrl in Shift) then
+  begin
+    FoItem.Description:=mmDescription.Lines.Text;
+    Update(true);
+  end;
 end;
 
 procedure TItemFrameBase.mmTimeOfLabelExit(Sender: TObject);
