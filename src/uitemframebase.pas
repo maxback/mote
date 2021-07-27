@@ -588,7 +588,7 @@ begin
 
     nElapsedTime := 0;
     //s := GetTimeTextItem(Copy(lblTime.Caption, 1, 15), '(', ')');
-    s := GetTimeTextItem(lblTime.Caption, '(', ')');
+    s := GetTimeTextItem(lblTime.Caption, '(', ')', 0);
     if s <> EmptyStr then
       nElapsedTime := StrToFloat(s);
 
@@ -600,13 +600,18 @@ begin
       pbTimeElapsed.Position:= 0;
       pbTimeElapsed.Hint:= 'Estimated time not found';
       exit;
+
     end;
-    if nPosition >= pbTimeElapsed.Max then
+    nPercent := 0;
+    if nEstimatedTime > 0 then
+      nPercent := nElapsedTime / nEstimatedTime;
+
+    if nPercent >= 0.95  then
     begin
       lbTimeElapsed.Font.Color := clRed;
-      nPosition := pbTimeElapsed.Max;
-    end;
-    if nPosition >= ((pbTimeElapsed.Max div 100) * 75)  then
+    end
+    else
+    if nPercent >= 0.75  then
       lbTimeElapsed.Font.Color := clYellow
     else
       lbTimeElapsed.Font.Color := clAqua;
@@ -614,9 +619,6 @@ begin
     lbTimeElapsed.Color := clBlack;
     pbTimeElapsed.Position:= nPosition;
 
-    nPercent := 0;
-    if nEstimatedTime > 0 then
-      nPercent := (nEstimatedTime / 100.0) * nElapsedTime;
 
     pbTimeElapsed.Hint:= Format('nElapsed %0.3f of %s (estimated)', [nElapsedTime, edtEstimatedTime.Text]);
 

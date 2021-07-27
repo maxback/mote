@@ -25,7 +25,7 @@ function GetNewId: string;
 function GetCurrentUserName: String;
 function ConvertObjectToJSONString(const poObject: TObject): string;
 procedure ConvertJSONStringObject(const psJSONString: string; const poObject: TObject);
-function GetTimeTextItem(const psText: string; const psDelimmiterBegin, psDelimmiterEnd: char): string;
+function GetTimeTextItem(const psText: string; const psDelimmiterBegin, psDelimmiterEnd: char; const pnIndexOfOcorrence: integer = -1): string;
 function GenerateTotalTimeTextFromStringList(sl: TStringList; const pbOnlyDecimalTimeFormat: boolean): string;
 
 implementation
@@ -36,7 +36,7 @@ var
   goJSONHelper: TJSONHelper;
 
 
-function GetTimeTextItem(const psText: string; const psDelimmiterBegin, psDelimmiterEnd: char): string;
+function GetTimeTextItem(const psText: string; const psDelimmiterBegin, psDelimmiterEnd: char; const pnIndexOfOcorrence: integer): string;
 var
   sl: TStringList;
   sTemp: string;
@@ -49,16 +49,33 @@ begin
     if sl.count < 3 then
        exit;
 
-    if psDelimmiterBegin = psDelimmiterEnd then
-      sTemp := sl.Strings[sl.Count - 2]
-    else
-      sTemp := sl.Strings[sl.Count - 1];
-    sl.Delimiter := psDelimmiterEnd;
-    sl.DelimitedText := sTemp;
-    if sl.count < 1 then
-       exit;
-    result := sl.Strings[0];
+    if pnIndexOfOcorrence >= 0 then
+    begin
+      if sl.Count <= (pnIndexOfOcorrence + 1) then
+        exit;
 
+      sTemp := sl.Strings[pnIndexOfOcorrence + 1];
+      if psDelimmiterBegin <> psDelimmiterEnd then
+      begin
+        sl.Delimiter := psDelimmiterEnd;
+        sl.DelimitedText := sTemp;
+        if sl.Count > 0 then
+          sTemp := sl.Strings[0];
+      end;
+       result := sTemp;
+    end
+    else
+    begin
+      if psDelimmiterBegin = psDelimmiterEnd then
+        sTemp := sl.Strings[sl.Count - 2]
+      else
+        sTemp := sl.Strings[sl.Count - 1];
+      sl.Delimiter := psDelimmiterEnd;
+      sl.DelimitedText := sTemp;
+      if sl.count < 1 then
+         exit;
+      result := sl.Strings[0];
+    end;
   finally
     sl.Free;
   end;
