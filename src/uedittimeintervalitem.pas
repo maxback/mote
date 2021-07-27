@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  Buttons;
+  Buttons, Clipbrd;
 
 type
 
@@ -14,6 +14,7 @@ type
 
   TfrmEditTimeIntervalItem = class(TForm)
     btnCancel: TBitBtn;
+    btnCopyTotalOfDayAndClose: TBitBtn;
     btnOk: TBitBtn;
     edtDate: TEdit;
     edtIniTime: TEdit;
@@ -22,14 +23,23 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    lblTotalOfDay: TLabel;
+    lbTimeIntervals: TListBox;
+    mmSelectedDaySumary: TMemo;
     mmComment: TMemo;
     Panel1: TPanel;
+    pnlTop: TPanel;
+    procedure btnCopyTotalOfDayAndCloseClick(Sender: TObject);
+    procedure edtDateChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure lbTimeIntervalsSelectionChange(Sender: TObject; User: boolean);
   private
+    FsDay: string;
     function SetFocusOnMinuts(const poEdit: TEdit): boolean;
+    function FilterSelectedDay(const s: string): boolean;
 
   public
-    class function Execute(const psCaption, psPrompt: string; var psValue: string): boolean;
+    class function Execute(const psCaption, psPrompt: string; const psTotalOfDay, psTimeIntervals: string; var psValue: string): boolean;
   end;
 
 var
@@ -41,6 +51,8 @@ implementation
 
 { TfrmEditTimeIntervalItem }
 
+uses
+  uMoteUtils;
 
 function TfrmEditTimeIntervalItem.SetFocusOnMinuts(const poEdit: TEdit): boolean;
 begin
@@ -60,12 +72,72 @@ begin
     SetFocusOnMinuts(edtIniTime);
 end;
 
+function TfrmEditTimeIntervalItem.FilterSelectedDay(const s: string): boolean;
+begin
+  result := Pos(FsDay, s) > 0;
+end;
+
+
+procedure TfrmEditTimeIntervalItem.lbTimeIntervalsSelectionChange(Sender: TObject;
+  User: boolean);
+var
+  sl: TStringList;
+  s: string;
+begin
+  FsDay := Copy(lbTimeIntervals.Items.Strings[lbTimeIntervals.ItemIndex], 1, 10);
+
+  sl := TStringList.Create;
+  try
+     lbTimeIntervals.Items.Filter(@FilterSelectedDay, sl);
+     mmSelectedDaySumary.Lines.Clear;
+
+     s := GenerateTotalTimeTextFromStringList(sl, true);
+
+     mmSelectedDaySumary.Lines.Add('Date:');
+     mmSelectedDaySumary.Lines.Add(FsDay);
+     mmSelectedDaySumary.Lines.Add('Sum:');
+     mmSelectedDaySumary.Lines.Add(s);
+
+  finally
+    sl.Free;
+  end;
+end;
+
+procedure TfrmEditTimeIntervalItem.btnCopyTotalOfDayAndCloseClick(
+  Sender: TObject);
+var
+  s: string;
+begin
+  if mmSelectedDaySumary.Lines.Count  < 4 then
+    exit;
+
+  s := mmSelectedDaySumary.Lines.Strings[3];
+  Clipboard.AsText := s;
+  ModalResult := mrcancel;
+  Close;
+end;
+
+procedure TfrmEditTimeIntervalItem.edtDateChange(Sender: TObject);
+var
+  i: integer;
+begin
+  lbTimeIntervals.ItemIndex := -1;
+  for i := 0 to lbTimeIntervals.items.Count-1 do
+      if Pos(edtDate.Text, lbTimeIntervals.items.Strings[i]) = 1 then
+      begin
+        lbTimeIntervals.ItemIndex := i;
+        break;
+      end;
+end;
+
 class function TfrmEditTimeIntervalItem.Execute(const psCaption,
-  psPrompt: string; var psValue: string): boolean;
+  psPrompt: string; const psTotalOfDay, psTimeIntervals: string; var psValue: string): boolean;
 begin
   //
   Application.CreateForm(TfrmEditTimeIntervalItem, frmEditTimeIntervalItem);
   frmEditTimeIntervalItem.Caption := psCaption;
+  frmEditTimeIntervalItem.lbTimeIntervals.Items.Text := psTimeIntervals;
+  frmEditTimeIntervalItem.lblTotalOfDay.Caption := psTotalOfDay;
   frmEditTimeIntervalItem.edtDate.Text := Copy(psValue, 1, 10);
   frmEditTimeIntervalItem.edtIniTime.Text := Copy(psValue, 12, 5);
   frmEditTimeIntervalItem.edtEndTime.Text := Copy(psValue, 20, 5);

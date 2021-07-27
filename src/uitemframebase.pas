@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, StdCtrls, Buttons, Grids, ComCtrls,
-  Dialogs, ExtCtrls, uItemDto, LCLIntf;
+  Dialogs, ExtCtrls, uItemDto, LCLIntf, Clipbrd, Menus, Graphics;
 
 {$J+}
 const
@@ -53,15 +53,24 @@ type
     btnChangeSizePluss: TBitBtn;
     edtPutOkOnItemInterval: TBitBtn;
     edtTitle: TEdit;
+    edtEstimatedTime: TEdit;
     gb: TGroupBox;
+    lbTimeElapsed: TLabel;
     lblTime: TLabel;
     lblDescription: TLabel;
     lblExternalToolItem: TLabel;
     lblTitle: TLabel;
     lbTime: TListBox;
+    micCreateTextFileAndInsertLocalFileRef: TMenuItem;
+    miEditDescription: TMenuItem;
+    miInsertLocalFileRef: TMenuItem;
     mmDescription: TMemo;
     mmTimeOfLabel: TMemo;
+    OpenDialog: TOpenDialog;
     pnTimeButton: TPanel;
+    PopupMenuDescOptions: TPopupMenu;
+    pbTimeElapsed: TProgressBar;
+    SaveDialog: TSaveDialog;
     Shape: TShape;
     procedure btnChangeSizeLessClick(Sender: TObject);
     procedure btnChangeSizePlussClick(Sender: TObject);
@@ -71,6 +80,7 @@ type
     procedure btnNewItemwithSelectTimeIntervalClick(Sender: TObject);
     procedure edtExternalToolItemDblClick(Sender: TObject);
     procedure edtPutOkOnItemIntervalClick(Sender: TObject);
+    procedure edtEstimatedTimeExit(Sender: TObject);
     procedure gbClick(Sender: TObject);
     procedure GenericOnEnter(Sender: TObject);
     procedure lbDescriptionDbClick(Sender: TObject);
@@ -91,11 +101,15 @@ type
     procedure lbTimeClick(Sender: TObject);
     procedure lbTimeDblClick(Sender: TObject);
     procedure lbTimeExit(Sender: TObject);
+    procedure micCreateTextFileAndInsertLocalFileRefClick(Sender: TObject);
+    procedure miInsertLocalFileRefClick(Sender: TObject);
     procedure mmDescriptionDblClick(Sender: TObject);
     procedure mmDescriptionExit(Sender: TObject);
     procedure mmDescriptionKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure mmTimeOfLabelExit(Sender: TObject);
+    procedure pbTimeElapsedMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure TratarMouseSobreTextos(Sender: TObject; Shift: TShiftState;
       X, Y: integer);
   private
@@ -105,7 +119,9 @@ type
     FoParentItem: TItemFrameBase;
     FoItemThatInterruptThis: TItemFrameBase;
     FOnvent: TItemFrameBaseEvent;
+    FbCopyLimeToClipboardBeforeOpenLink: boolean;
     function GetDescription: string;
+    function GetEstimatedTime: string;
     function GetExternalToolItem: string;
     function GetId: string;
     function GetParentItem: TItemFrameBase;
@@ -116,6 +132,7 @@ type
     function GetUserName: string;
     function GetCreatedBy: string;
     procedure SetDescription(AValue: string);
+    procedure SetEstimatedTime(AValue: string);
     procedure SetExternalToolItem(AValue: string);
     procedure SetId(AValue: string);
     procedure SetOnvent(AValue: TItemFrameBaseEvent);
@@ -126,12 +143,16 @@ type
     procedure SetWorking(AValue: boolean);
     procedure SetUserName(AValue: string);
     procedure SetCreatedBy(AValue: string);
+    function GetCopyLimeToClipboardBeforeOpenLink: boolean;
+    procedure SetCopyLimeToClipboardBeforeOpenLink(const value: boolean);
   protected
     FoEventResponseObject: TObject;
     function InterruptWork: boolean; virtual;
     function DoOnvent(const psEvent: string; const poParam: TObject): boolean; virtual;
     function TestarCampoTotalmenteVisivel(Sender: TObject): boolean;
     procedure OpenURLFromDescription; virtual;
+    function GetLastTimeTextItem(const psDelimmiterBegin, psDelimmiterEnd: char): string; virtual;
+    function GetTodayTimeTextItem(const psDelimmiterBegin, psDelimmiterEnd: char): string; virtual;
   public
     property Id: string read GetId write SetId;
     property ExternalToolItem: string read GetExternalToolItem write SetExternalToolItem;
@@ -144,10 +165,13 @@ type
     property OnEvent: TItemFrameBaseEvent read FOnvent write SetOnvent;
     property UserName: string read GetUserName write SetUserName;
     property CreatedBy: string read GetCreatedBy write SetCreatedBy;
+    property CopyLimeToClipboardBeforeOpenLink: boolean read GetCopyLimeToClipboardBeforeOpenLink write SetCopyLimeToClipboardBeforeOpenLink;
+    property EstimatedTime: string read GetEstimatedTime write SetEstimatedTime;
 
 
     property Item: TItemDto read FoItem write FoItem;
 
+    procedure UpdateTimeElapsed;
     function ToString: string; override;
     procedure Update(const pbHandleInternal: boolean; const pbForceHasUpdated: boolean = false); virtual;
     procedure UpdateFromJSON(const psJSONItem: string); virtual;
@@ -253,6 +277,13 @@ end;
 
 procedure TItemFrameBase.edtExternalToolItemDblClick(Sender: TObject);
 begin
+  if FbCopyLimeToClipboardBeforeOpenLink then
+  begin
+    //Clipboard.AsText := GetLastTimeTextItem(' ', ' ');
+    Clipboard.AsText := GetLastTimeTextItem('(', ')');
+    Clipboard.AsText := GetTodayTimeTextItem('(', ')');
+  end;
+
   OpenURL(edtExternalToolItem.Text);
 end;
 
@@ -282,6 +313,13 @@ begin
       sl.Free;
     end;
   end;
+end;
+
+procedure TItemFrameBase.edtEstimatedTimeExit(Sender: TObject);
+begin
+  edtEstimatedTime.Visible := False;
+  FoItem.EstimatedTime := edtEstimatedTime.Text;
+  Update(true, true);
 end;
 
 procedure TItemFrameBase.gbClick(Sender: TObject);
@@ -395,21 +433,29 @@ end;
 procedure TItemFrameBase.edtEditTimeIntervalClick(Sender: TObject);
 var
   sl: TStringList;
+  slToday: TStringList;
   s: string;
 begin
   if lbTime.ItemIndex >= 0 then
   begin
     sl := TStringList.Create;
+    slToday := TStringList.Create;
     try
       sl.Text := FoItem.TimeIntervals;
+      slToday.Text := FoItem.TimeIntervals;
+      mmTimeOfLabel.Lines.Text := lblTime.Caption;
+
       s := sl[lbTime.ItemIndex];
-      if not TfrmEditTimeIntervalItem.Execute('Editar intervalo', 'Respeite o formato dd/mm/yyyy hh:mm - hh:mm, senão...!', s) then
+
+      if not TfrmEditTimeIntervalItem.Execute('Editar intervalo', 'Respeite o formato dd/mm/yyyy hh:mm - hh:mm, senão...!',
+        mmTimeOfLabel.Lines.Text + '------' + #13#10 + slToday.Text, FoItem.TimeIntervals, s) then
         exit;
       sl[lbTime.ItemIndex] := s;
       FoItem.TimeIntervals := sl.Text;
       Update(true);
       DoOnvent('item_time_edited', nil);
     finally
+      slToday.Free;
       sl.Free;
     end;
   end;
@@ -473,11 +519,140 @@ begin
   mmTimeOfLabel.Visible := false;
 end;
 
+procedure TItemFrameBase.micCreateTextFileAndInsertLocalFileRefClick(
+  Sender: TObject);
+var
+  s: string;
+  sl: TStringList;
+begin
+  SaveDialog.FileName := edtTitle.text + ' - extra text file ' + FormatDateTime('yyyy-mm-dd--hh-mm-ss', now) + '.txt';
+  if not SaveDialog.Execute then
+    exit;
+  sl := TStringList.Create;
+  try
+    s := 'Text file create from item ' + edtTitle.text + #13#10 +
+      'Clipbroard: ' + Clipboard.AsText;
+    sl.TExt := s;
+    sl.SaveToFile(SaveDialog.FileName);
+  finally
+    sl.free;
+  end;
+  s := #13#10 + 'file://' + SaveDialog.FileName + #13#10;
+  //bad, but today we have ctrl+c ad ctrl+v :-)
+  Clipboard.AsText := s;
+  mmDescription.PasteFromClipboard;
+  OpenURL(s);
+end;
+
+procedure TItemFrameBase.miInsertLocalFileRefClick(Sender: TObject);
+var
+  s: string;
+begin
+  if not opendialog.Execute then
+    exit;
+
+  s := #13#10 + 'file://' + opendialog.FileName + #13#10;
+  //bad, but today we have ctrl+c ad ctrl+v :-)
+  Clipboard.AsText := s;
+  mmDescription.PasteFromClipboard;
+
+end;
+
+
+function TItemFrameBase.GetTodayTimeTextItem(const psDelimmiterBegin, psDelimmiterEnd: char): string;
+var
+  nPos1, nPos2: integer;
+  sToday: string;
+begin
+  nPos1 := Pos('Today', lblTime.Caption);
+  sToday := Copy(lblTime.Caption, nPos1, Length(lblTime.Caption) - nPos1 + 1);
+  nPos2 := Pos(')', sToday);
+  sToday := Copy(sToday, 1, nPos2 + 1);
+  result := GetTimeTextItem(sToday, psDelimmiterBegin, psDelimmiterEnd);
+end;
+
+procedure TItemFrameBase.UpdateTimeElapsed;
+var
+  nPercent, nElapsedTime, nEstimatedTime: Double;
+  nPosition: integer;
+  s: string;
+begin
+  lbTimeElapsed.Color:=clNone;
+  lbTimeElapsed.Font.Color:= clBlack;
+  lbTimeElapsed.Caption := EmptyStr;
+  lbTimeElapsed.Hint := EmptyStr;
+  try
+    nEstimatedTime := 0;
+    if edtEstimatedTime.Text <> EmptyStr then
+      nEstimatedTime := StrToFloat(edtEstimatedTime.Text);
+
+    nElapsedTime := 0;
+    //s := GetTimeTextItem(Copy(lblTime.Caption, 1, 15), '(', ')');
+    s := GetTimeTextItem(lblTime.Caption, '(', ')');
+    if s <> EmptyStr then
+      nElapsedTime := StrToFloat(s);
+
+    nPosition := Trunc(nElapsedTime * 1000);
+    pbTimeElapsed.Max:=Trunc(nEstimatedTime * 1000);
+    pbTimeElapsed.Min:=0;
+    if nEstimatedTime <= 0 then
+    begin
+      pbTimeElapsed.Position:= 0;
+      pbTimeElapsed.Hint:= 'Estimated time not found';
+      exit;
+    end;
+    if nPosition >= pbTimeElapsed.Max then
+    begin
+      lbTimeElapsed.Font.Color := clRed;
+      nPosition := pbTimeElapsed.Max;
+    end;
+    if nPosition >= ((pbTimeElapsed.Max div 100) * 75)  then
+      lbTimeElapsed.Font.Color := clYellow
+    else
+      lbTimeElapsed.Font.Color := clAqua;
+
+    lbTimeElapsed.Color := clBlack;
+    pbTimeElapsed.Position:= nPosition;
+
+    nPercent := 0;
+    if nEstimatedTime > 0 then
+      nPercent := (nEstimatedTime / 100.0) * nElapsedTime;
+
+    pbTimeElapsed.Hint:= Format('nElapsed %0.3f of %s (estimated)', [nElapsedTime, edtEstimatedTime.Text]);
+
+    lbTimeElapsed.Caption := Format(' %0.2f%%  (%0.3f / %0.3f)', [nPercent * 100, nElapsedTime, nEstimatedTime]);
+    lbTimeElapsed.Hint := lbTimeElapsed.Caption;
+
+  except
+    pbTimeElapsed.Max:=1;
+    pbTimeElapsed.Min:=0;
+    pbTimeElapsed.Position:=0;
+    pbTimeElapsed.Hint:= 'Error uppindanting progress';
+
+  end;
+end;
+
+
+function TItemFrameBase.GetLastTimeTextItem(const psDelimmiterBegin, psDelimmiterEnd: char): string;
+begin
+  result := GetTimeTextItem(lblTime.Caption, psDelimmiterBegin, psDelimmiterEnd);
+end;
+
+
+
 procedure TItemFrameBase.OpenURLFromDescription;
+const
+  Protocols : array[0..2] of string = ('http://', 'https://', 'file://');
 var
   n, n2, i1, i2: integer;
   s: string;
+  i: integer;
 begin
+  if FbCopyLimeToClipboardBeforeOpenLink then
+  begin
+    //Clipboard.AsText := GetLastTimeTextItem(' ', ' ');
+    Clipboard.AsText := GetLastTimeTextItem('(', ')');
+  end;
   //obtain a link in corrient item
   n2 := 0;
   i1 := mmDescription.SelStart;
@@ -486,19 +661,24 @@ begin
     n2 := n2 + Length(mmDescription.Lines.Strings[n]) + 2; ///r/n
     if n2 >= i1 then
     begin
-      i2 := Pos('http', mmDescription.Lines.Strings[n]);
-      if i2 > 0 then
+      for i := low(Protocols) to high(Protocols) do
       begin
+        i2 := Pos(Protocols[i], mmDescription.Lines.Strings[n]);
+        if i2 < 1 then
+          continue;
+
         s := Copy(mmDescription.Lines.Strings[n], i2, Length(mmDescription.Lines.Strings[n]));
         OpenURL(s);
         exit;
       end;
-      break;
+
     end;
   end;
 
   s := mmDescription.SelText;
-  if Pos('http', s) = 1 then
+  if Pos('http://', s) = 1 then
+    OpenURL(s);
+  if Pos('file://', s) = 1 then
     OpenURL(s);
 end;
 
@@ -530,6 +710,13 @@ end;
 procedure TItemFrameBase.mmTimeOfLabelExit(Sender: TObject);
 begin
   mmTimeOfLabel.visible := false;
+end;
+
+procedure TItemFrameBase.pbTimeElapsedMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  edtEstimatedTime.Visible := true;
+  edtEstimatedTime.SetFocus;
 end;
 
 function TItemFrameBase.TestarCampoTotalmenteVisivel(Sender: TObject): boolean;
@@ -612,6 +799,15 @@ begin
   Update(true);
 end;
 
+procedure TItemFrameBase.SetEstimatedTime(AValue: string);
+begin
+  if FoItem.EstimatedTime = AValue then
+    Exit;
+  FoItem.EstimatedTime := AValue;
+  Update(true);
+
+end;
+
 function TItemFrameBase.GetTimeIntervals: TStrings;
 begin
   Result := lbTime.Items;
@@ -620,6 +816,11 @@ end;
 function TItemFrameBase.GetDescription: string;
 begin
   result := FoItem.Description;
+end;
+
+function TItemFrameBase.GetEstimatedTime: string;
+begin
+  result := FoItem.EstimatedTime;
 end;
 
 function TItemFrameBase.GetCreatedBy: string;
@@ -667,6 +868,18 @@ begin
   FoItem.CreatedBy := AValue;
 end;
 
+function TItemFrameBase.GetCopyLimeToClipboardBeforeOpenLink: boolean;
+begin
+  result := FbCopyLimeToClipboardBeforeOpenLink;
+end;
+
+procedure TItemFrameBase.SetCopyLimeToClipboardBeforeOpenLink(
+  const value: boolean);
+begin
+  FbCopyLimeToClipboardBeforeOpenLink := value;
+
+end;
+
 procedure TItemFrameBase.SetExternalToolItem(AValue: string);
 begin
   if FoItem.ExternalToolItem = AValue then
@@ -707,6 +920,13 @@ begin
   bUpdated := (lblTitle.Caption <> FoItem.Title);
   lblTitle.Caption := FoItem.Title;
 
+  bUpdated := bUpdated or (edtEstimatedTime.Text <> FoItem.EstimatedTime);
+  edtEstimatedTime.Text := FoItem.EstimatedTime;
+
+  UpdateTimeElapsed;
+
+  bUpdated := bUpdated or (lblTitle.Caption <> FoItem.Title);
+  lblTitle.Caption := FoItem.Title;
   bUpdated := bUpdated or (edtTitle.Text <> FoItem.Title);
   edtTitle.Text := FoItem.Title;
 
@@ -772,6 +992,7 @@ procedure TItemFrameBase.UpdateFromJSON(const psJSONItem: string);
 begin
   ConvertJSONStringObject(psJSONItem, FoItem);
   Update(false);
+  UpdateTimeElapsed;
 end;
 
 procedure TItemFrameBase.AddControl(const psControlClassName: string;
@@ -788,6 +1009,7 @@ end;
 constructor TItemFrameBase.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
+  FbCopyLimeToClipboardBeforeOpenLink := true;
   FnOriginalHeight:=Height;
   FslCustomControls := TList.Create;
   FoItem := TItemDto.Create;

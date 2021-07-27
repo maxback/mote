@@ -24,6 +24,7 @@ type
     FsParentItemId: string;
     FsUserName: string;
     FsCreatedBy: string;
+    FsEstimatedTime: string;
   published
     property Id: string read FsId write FsId;
     property ExternalToolItem: string read FsExternalToolItem write FsExternalToolItem;
@@ -37,6 +38,7 @@ type
     property CreatedBy: string read FsCreatedBy write FsCreatedBy;
     property CreationDateTime: TDateTime read FdtCreationDateTime write FdtCreationDateTime;
     property LastUpdateDateTime: TDateTime read FdtLastUpdateDateTime write FdtLastUpdateDateTime;
+    property EstimatedTime: string read FsEstimatedTime write FsEstimatedTime;
 
     function ToString: string; override;
     constructor Create; overload;

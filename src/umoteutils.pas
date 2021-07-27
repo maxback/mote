@@ -25,10 +25,50 @@ function GetNewId: string;
 function GetCurrentUserName: String;
 function ConvertObjectToJSONString(const poObject: TObject): string;
 procedure ConvertJSONStringObject(const psJSONString: string; const poObject: TObject);
+function GetTimeTextItem(const psText: string; const psDelimmiterBegin, psDelimmiterEnd: char): string;
+function GenerateTotalTimeTextFromStringList(sl: TStringList; const pbOnlyDecimalTimeFormat: boolean): string;
 
 implementation
+
+uses
+  uTimeEngine;
 var
   goJSONHelper: TJSONHelper;
+
+
+function GetTimeTextItem(const psText: string; const psDelimmiterBegin, psDelimmiterEnd: char): string;
+var
+  sl: TStringList;
+  sTemp: string;
+begin
+  result := '0';
+  sl := TStringList.Create;
+  try
+    sl.Delimiter := psDelimmiterBegin;
+    sl.DelimitedText := psText;
+    if sl.count < 3 then
+       exit;
+
+    if psDelimmiterBegin = psDelimmiterEnd then
+      sTemp := sl.Strings[sl.Count - 2]
+    else
+      sTemp := sl.Strings[sl.Count - 1];
+    sl.Delimiter := psDelimmiterEnd;
+    sl.DelimitedText := sTemp;
+    if sl.count < 1 then
+       exit;
+    result := sl.Strings[0];
+
+  finally
+    sl.Free;
+  end;
+end;
+
+function GenerateTotalTimeTextFromStringList(sl: TStringList;
+  const pbOnlyDecimalTimeFormat: boolean): string;
+begin
+  Result := TTimeEngine.GenerateTotalTimeTextFromStringList(sl, pbOnlyDecimalTimeFormat);
+end;
 
 function GetNewId: string;
 Var

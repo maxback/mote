@@ -9,7 +9,8 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Menus,
   Buttons, ActnList, StdCtrls, fphttpclient, uItemFrameBase, uTodaySumaryFrame,
   uMoteMessage, uEventDto, uItemDto, uSettingItemUriDto, uSettingItemBase,
-  uSettingNewItemOptionsDto, uDateIntervalParamDto, umotelog;
+  uSettingNewItemOptionsDto, uDateIntervalParamDto, umotelog,
+  MMSystem;
 
 type
 
@@ -26,9 +27,15 @@ type
     ActionList: TActionList;
     btnRemoteNewItem1: TSpeedButton;
     Button1: TButton;
+    btnStopSound: TButton;
+    gbAlarm: TGroupBox;
     imFundo: TImage;
     ImageList: TImageList;
+    lbSound: TLabel;
     MainMenu: TMainMenu;
+    MenuItem1: TMenuItem;
+    miPinOutsideScrollBox: TMenuItem;
+    miCopyLastDecimalTimerBeforOpenHttpLink: TMenuItem;
     miLogMessages: TMenuItem;
     mmMessages: TMemo;
     N1: TMenuItem;
@@ -53,12 +60,14 @@ type
     SpeedButton4: TSpeedButton;
     Splitter: TSplitter;
     Timer: TTimer;
+    TimerSound: TTimer;
     TimerInitalizationAnimate: TTimer;
     FrameSumary: TTodaySumaryFrame;
 
     procedure acFilterSumaryExecute(Sender: TObject);
     procedure acMoveTodayToForwardExecute(Sender: TObject);
     procedure acMoveTodayToPrevExecute(Sender: TObject);
+    procedure btnStopSoundClick(Sender: TObject);
     procedure miItemInterruptionClick(Sender: TObject);
     procedure AddItemFromJson(const psJSONString: string);
     procedure acAddItemExecute(Sender: TObject);
@@ -74,12 +83,14 @@ type
     procedure miItemPopupDeleteItemClick(Sender: TObject);
     procedure miItemPopupItemTextClick(Sender: TObject);
     procedure miLogMessagesClick(Sender: TObject);
+    procedure miPinOutsideScrollBoxClick(Sender: TObject);
     procedure miUsertCodesEditorClick(Sender: TObject);
     procedure MessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
     procedure MessagePublish(Sender: Tobject; const poMessage: TMoteMessage);
     function ItemFrameBaseEvent(Sender: TObject; const psEvent: string; const poParam: TObject; var poResponse: TObject): boolean;
     procedure pmRemoteItemsPopup(Sender: TObject);
     procedure TimerInitalizationAnimateTimer(Sender: TObject);
+    procedure TimerSoundTimer(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
     function FindItemGui(const psJSONItem: string): TItemFrameBase;
   private
@@ -93,8 +104,11 @@ type
     FbTimerEnabledOld: boolean;
     FsRemoteNewItemsUri: string;
     FdtRemoteNewItemsLastLoadTime: TDateTime;
+    FbWaitingToSound: boolean;
+    FsLastSoundCmd: string;
 
     procedure AdjustFrameWith(const poItemFrameBase: TItemFrameBase);
+    procedure PlaySoundIfDefined(const poItemFrameBase: TItemFrameBase);
     procedure SaveTimerEnabled;
     procedure RestoreTimerEnabled;
 
@@ -108,6 +122,7 @@ type
     procedure AddItemToGui(const psJSONItem: string);
     procedure UpdateItemToGui(const psJSONItem: string);
     procedure DeleteItemToGui(const psJSONItem: string);
+    procedure PinUnpinItemToGui(const psJSONItem: string);
     procedure ApplySetting(const psJSONItem: string);
     function GetMessageClient: TMoteMessageClient;
     procedure SetMessageClient(AValue: TMoteMessageClient);
@@ -215,6 +230,8 @@ var
   oContextoLog: IMoteContextoRegistroLog;
   e: TEventDto;
 begin
+//  if Assigned(FoLastFrameInserted) then
+//    FoLastFrameInserted.CopyLimeToClipboardBeforeOpenLink := miCopyLastDecimalTimerBeforOpenHttpLink.Checked;
   //07/04/2021 - maxback -  Adicionado log especial
   oContextoLog := motelog(ClassName + '.ItemFrameBaseEvent', EmptyStr, True);
   try
@@ -337,6 +354,46 @@ begin
   end;
 end;
 
+procedure TfrmMain.TimerSoundTimer(Sender: TObject);
+var
+  oContextoLog: IMoteContextoRegistroLog;
+  i: integer;
+  oItemFrameBase: TItemFrameBase;
+begin
+  //07/04/2021 - maxback -  Adicionado log especial
+  oContextoLog := motelog(ClassName + '.TimerSoundTimer', EmptyStr, True);
+  try
+    if FbWaitingToSound then
+    begin
+      for i := 0 to ScrollBoxMain.ComponentCount-1 do
+      begin
+        if ScrollBoxMain.Components[i] is TItemFrameBase then
+        begin
+          oItemFrameBase := ScrollBoxMain.Components[i] as TItemFrameBase;
+          PlaySoundIfDefined(oItemFrameBase);
+        end;
+      end;
+      for i := 0 to ComponentCount-1 do
+      begin
+        if Components[i] is TItemFrameBase then
+        begin
+          oItemFrameBase := Components[i] as TItemFrameBase;
+          oItemFrameBase.RefreshTime;
+          PlaySoundIfDefined(oItemFrameBase);
+        end;
+      end;
+    end
+    else
+    begin
+      PlaySound(PChar(lbSound.Caption), 0, SND_ASYNC);
+    end;
+    oContextoLog.GerarLogRetornoMetodo;
+  except
+    oContextoLog.GerarLogRetornoMetodoComErro;
+    raise;
+  end;
+end;
+
 procedure TfrmMain.AdjustFrameWith(const poItemFrameBase: TItemFrameBase);
 var
   oContextoLog: IMoteContextoRegistroLog;
@@ -356,6 +413,35 @@ begin
   end;
 end;
 
+procedure TfrmMain.PlaySoundIfDefined(const poItemFrameBase: TItemFrameBase);
+var
+  oContextoLog: IMoteContextoRegistroLog;
+  sText, sCmd: string;
+  nPos: integer;
+begin
+  oContextoLog := motelog(ClassName + '.poItemFrameBase', EmptyStr, True);
+  try
+    sText := poItemFrameBase.Item.Description;
+    sCmd := 'PlaySound(' + FormatDateTime('dd/mm/yyyy hh:mm', now) + ',';
+    nPos := Pos(sCmd, sText);
+    if (nPos > 0) and (sCmd <> FsLastSoundCmd) then
+    begin
+      sText := Copy(sText, nPos + Length(sCmd), Length(sText));
+      sText := Copy(sText, 1, Pos(')', sText) -1);
+      //ShowMessage(sText);
+      FsLastSoundCmd := sCmd;
+      gbAlarm.Visible := true;
+      lbSound.Caption := sText;
+      FbWaitingToSound := false;
+      TimerSound.Interval := 10000;
+      PlaySound(PChar(sText), 0, SND_ASYNC);
+    end;
+    oContextoLog.GerarLogRetornoMetodo;
+  except
+    oContextoLog.GerarLogRetornoMetodoComErro;
+    raise;
+  end;
+end;
 
 procedure TfrmMain.TimerTimer(Sender: TObject);
 var
@@ -371,6 +457,15 @@ begin
       if ScrollBoxMain.Components[i] is TItemFrameBase then
       begin
         oItemFrameBase := ScrollBoxMain.Components[i] as TItemFrameBase;
+        oItemFrameBase.RefreshTime;
+        AdjustFrameWith(oItemFrameBase);
+      end;
+    end;
+    for i := 0 to ComponentCount-1 do
+    begin
+      if Components[i] is TItemFrameBase then
+      begin
+        oItemFrameBase := Components[i] as TItemFrameBase;
         oItemFrameBase.RefreshTime;
         AdjustFrameWith(oItemFrameBase);
       end;
@@ -479,6 +574,18 @@ begin
         if (ScrollBoxMain.Components[i] as TItemFrameBase).Item.Id =  oItem.Id then
         begin
           result := ScrollBoxMain.Components[i] as TItemFrameBase;
+          oContextoLog.GerarLogRetornoMetodo;
+          exit;
+        end;
+      end;
+    end;
+    for i := 0 to ComponentCount-1 do
+    begin
+      if Components[i] is TItemFrameBase then
+      begin
+        if (Components[i] as TItemFrameBase).Item.Id =  oItem.Id then
+        begin
+          result := Components[i] as TItemFrameBase;
           oContextoLog.GerarLogRetornoMetodo;
           exit;
         end;
@@ -598,6 +705,41 @@ begin
     raise;
   end;
 end;
+
+procedure TfrmMain.PinUnpinItemToGui(const psJSONItem: string);
+var
+  oContextoLog: IMoteContextoRegistroLog;
+  oControl: TControl;
+  oFrame: TItemFrameBase;
+begin
+  //24/05/2021 - maxback -  Adicionado log especial
+  oContextoLog := motelog(ClassName + '.PinUnpinItemToGui', EmptyStr, True);
+  try
+    oFrame := FindItemGui(psJSONItem);
+    oControl := oFrame As TControl;
+
+    if oFrame = nil then
+    begin
+      frmMain.RemoveControl(oControl);
+      oControl.Parent := nil;
+      ScrollBoxMain.InsertControl(oControl);
+      oControl.Parent := ScrollBoxMain;
+      oFrame.Align := alTop;
+      exit;
+    end;
+
+    ScrollBoxMain.RemoveControl(oControl);
+    oControl.Parent := nil;
+    frmMain.InsertControl(oControl);
+    oControl.Parent := frmMain;
+    oFrame.Align := alBottom;
+    oContextoLog.GerarLogRetornoMetodo;
+  except
+    oContextoLog.GerarLogRetornoMetodoComErro;
+    raise;
+  end;
+end;
+
 
 procedure TfrmMain.GetRemoteNewItems(poItem: TSettingItemUriDto);
 var
@@ -725,7 +867,7 @@ begin
       s := FrameSumary.Filter;
       if InputQuery('Filtro (Adicione ! antes para negar)','Informe o filtro dos intes no sumário', s) then
       begin
-        FrameSumary.Filter:=s;
+        FrameSumary.Filter:= s ;
         FrameSumary.Update;
       end;
     finally
@@ -781,6 +923,13 @@ begin
     oContextoLog.GerarLogRetornoMetodoComErro;
     raise;
   end;
+end;
+
+procedure TfrmMain.btnStopSoundClick(Sender: TObject);
+begin
+  gbAlarm.Visible := false;
+  FbWaitingToSound := true;
+  TimerSound.Interval := 500;
 end;
 
 procedure TfrmMain.GetRemoteItemInterruptions(poItem: TSettingItemBaseDto);
@@ -1067,6 +1216,7 @@ begin
   //07/04/2021 - maxback -  Adicionado log especial
   oContextoLog := motelog(ClassName + '.FormCreate', EmptyStr, True);
   try
+    FbWaitingToSound := true;
     FrameSumary.ContainerOfItemsFrames := ScrollBoxMain;
     FrameSumary.CanControlContainerOfItemsFramesVisiblity := true;
     FdtToday := now;
@@ -1186,6 +1336,12 @@ begin
     raise;
   end;
 
+end;
+
+procedure TfrmMain.miPinOutsideScrollBoxClick(Sender: TObject);
+begin
+  PinUnpinItemToGui(FoLastFrameEventHandle.ToString);
+  miPinOutsideScrollBox.Visible := false;
 end;
 
 end.

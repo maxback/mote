@@ -425,7 +425,9 @@ begin
         begin
           if (not FbCanControlContainerOfItemsFramesVisiblity) and (not f.Visible) then
             continue;
-           f.Visible := Pos(sToday, f.Item.TimeIntervals) > 0;
+          f.Visible := Pos(sToday, f.Item.TimeIntervals) > 0;
+          f.Visible := f.Visible or (Pos(sToday, DateTimeToStr(f.Item.CreationDateTime)) > 0);
+
           Inc(nCount);
           sLinesToday := '';
           sl.Text := f.Item.TimeIntervals;

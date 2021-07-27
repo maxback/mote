@@ -41,7 +41,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="21">
+    <Units Count="23">
       <Unit0>
         <Filename Value="mote.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -168,6 +168,14 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="uEditTimeIntervalItem"/>
       </Unit20>
+      <Unit21>
+        <Filename Value="util\uprclog.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="util\umotelog.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit22>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -178,7 +186,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="api;dtos"/>
+      <OtherUnitFiles Value="api;dtos;util"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

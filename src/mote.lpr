@@ -11,7 +11,8 @@ uses
   uTimeEngine, uMoteUtils, uLocalStorage, uEventDto, uItemDto, uWeek,
   uItemFrameWeekCompact, uDateIntervalParamDto, uPomodoro, uSettingItemBase,
   uSettingPoromodoroItemDto, uTextEditor, usettingitemuridto,
-  uSettingNewItemOptionsDto, uTodaySumaryFrame, uEditTimeIntervalItem;
+  uSettingNewItemOptionsDto, uTodaySumaryFrame, uEditTimeIntervalItem, uprclog,
+  umotelog;
 
 {$R *.res}
 var

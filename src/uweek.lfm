@@ -1,7 +1,7 @@
 object frmWeek: TfrmWeek
-  Left = 437
+  Left = 599
   Height = 654
-  Top = 55
+  Top = 115
   Width = 931
   Caption = 'frmWeek'
   ClientHeight = 654

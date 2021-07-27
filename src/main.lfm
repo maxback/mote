@@ -1,23 +1,22 @@
 object frmMain: TfrmMain
-  Left = 433
-  Height = 499
-  Top = 310
-  Width = 788
-  Align = alRight
+  Left = 412
+  Height = 681
+  Top = 77
+  Width = 860
+  Align = alBottom
   Caption = 'MOTE'
-  ClientHeight = 479
-  ClientWidth = 788
+  ClientHeight = 661
+  ClientWidth = 860
   Menu = MainMenu
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
   LCLVersion = '2.0.10.0'
-  WindowState = wsMaximized
   object ScrollBoxMain: TScrollBox
     Left = 0
-    Height = 187
-    Top = 142
-    Width = 788
+    Height = 315
+    Top = 196
+    Width = 860
     HorzScrollBar.Page = 1
     VertScrollBar.Page = 1
     Align = alClient
@@ -28,7 +27,7 @@ object frmMain: TfrmMain
     Left = 0
     Height = 5
     Top = 137
-    Width = 788
+    Width = 860
     Align = alTop
     ResizeAnchor = akTop
     Visible = False
@@ -37,7 +36,7 @@ object frmMain: TfrmMain
     Left = 32
     Height = 480
     Top = -208
-    Width = 1080
+    Width = 292
     Anchors = [akTop, akLeft, akRight]
     Picture.Data = {
       1754506F727461626C654E6574776F726B4772617068696310370E0089504E47
@@ -29161,10 +29160,10 @@ object frmMain: TfrmMain
     Left = 0
     Height = 137
     Top = 0
-    Width = 788
+    Width = 860
     Align = alTop
     ClientHeight = 137
-    ClientWidth = 788
+    ClientWidth = 860
     TabOrder = 2
     Visible = False
     object SpeedButton1: TSpeedButton
@@ -29179,92 +29178,94 @@ object frmMain: TfrmMain
     object SpeedButton2: TSpeedButton
       Left = 6
       Height = 43
-      Top = 8
+      Top = 6
       Width = 42
       Action = acShowWeek
       BorderSpacing.Around = 5
     end
     object btnRemoteNewItem: TSpeedButton
-      Left = 693
+      Left = 47
       Height = 43
-      Top = 90
+      Top = 48
       Width = 42
       Action = acMoveTodayToForward
-      Anchors = [akRight, akBottom]
+      Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 5
     end
     object SpeedButton3: TSpeedButton
-      Left = 53
+      Left = 47
       Height = 43
-      Top = 8
+      Top = 6
       Width = 42
       Action = acFilterSumary
       BorderSpacing.Around = 5
     end
     object SpeedButton4: TSpeedButton
-      Left = 53
+      Left = 6
       Height = 43
-      Top = 90
+      Top = 48
       Width = 42
       Action = acMoveTodayToPrev
       Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 5
     end
     object btnRemoteNewItem1: TSpeedButton
-      Left = 740
+      Left = 47
       Height = 43
       Top = 90
       Width = 42
       Action = acAddRemoteItem
-      Anchors = [akRight, akBottom]
+      Anchors = [akLeft, akBottom]
       BorderSpacing.Around = 5
     end
     inline FrameSumary: TTodaySumaryFrame
       Left = 106
       Height = 138
       Top = 1
-      Width = 582
+      Width = 742
       Anchors = [akTop, akLeft, akRight, akBottom]
       ClientHeight = 138
-      ClientWidth = 582
+      ClientWidth = 742
+      DesignLeft = 394
+      DesignTop = 138
       inherited lbTop: TLabel
-        Width = 582
+        Width = 742
       end
       inherited pnClient: TPanel
         Height = 16
         Top = 118
-        Width = 582
+        Width = 742
         Align = alBottom
         ClientHeight = 16
-        ClientWidth = 582
+        ClientWidth = 742
         inherited lbList: TLabel
           Height = 15
           Top = 1
-          Width = 582
+          Width = 742
           Align = alBottom
         end
       end
       inherited lb: TListBox
         Height = 4
         Top = 134
-        Width = 582
+        Width = 742
       end
       inherited PanelTimeTrack: TPanel
         Height = 103
-        Width = 582
+        Width = 742
         Align = alClient
         ClientHeight = 103
-        ClientWidth = 582
+        ClientWidth = 742
         inherited sbPositionLess: TSpeedButton
           Height = 101
         end
         inherited sbPositionPlus: TSpeedButton
-          Left = 554
+          Left = 714
           Height = 101
         end
         inherited pbTimeTrack: TPaintBox
           Height = 101
-          Width = 526
+          Width = 686
         end
       end
     end
@@ -29272,18 +29273,18 @@ object frmMain: TfrmMain
   object pnLog: TPanel
     Left = 0
     Height = 150
-    Top = 329
-    Width = 788
+    Top = 511
+    Width = 860
     Align = alBottom
     ClientHeight = 150
-    ClientWidth = 788
+    ClientWidth = 860
     TabOrder = 3
     Visible = False
     object Button1: TButton
       Left = 1
       Height = 25
       Top = 1
-      Width = 786
+      Width = 858
       Align = alTop
       Caption = 'Limpar Log'
       OnClick = Button1Click
@@ -29293,7 +29294,7 @@ object frmMain: TfrmMain
       Left = 1
       Height = 123
       Top = 26
-      Width = 786
+      Width = 858
       Align = alClient
       Color = clWindowFrame
       Font.CharSet = OEM_CHARSET
@@ -29308,6 +29309,37 @@ object frmMain: TfrmMain
       ParentFont = False
       ScrollBars = ssAutoBoth
       TabOrder = 1
+    end
+  end
+  object gbAlarm: TGroupBox
+    Left = 0
+    Height = 54
+    Top = 142
+    Width = 860
+    Align = alTop
+    Caption = ' Alarm '
+    ClientHeight = 34
+    ClientWidth = 856
+    TabOrder = 4
+    Visible = False
+    object lbSound: TLabel
+      Left = 0
+      Height = 34
+      Top = 0
+      Width = 710
+      Anchors = [akTop, akLeft, akRight, akBottom]
+      AutoSize = False
+      Caption = 'lbSound'
+      ParentColor = False
+    end
+    object btnStopSound: TButton
+      Left = 720
+      Height = 29
+      Top = 0
+      Width = 132
+      Caption = 'Stop Alarm Sound'
+      OnClick = btnStopSoundClick
+      TabOrder = 0
     end
   end
   object MainMenu: TMainMenu
@@ -29340,6 +29372,10 @@ object frmMain: TfrmMain
         Caption = 'Log de mensagens (baixo nível)'
         Checked = True
         OnClick = miLogMessagesClick
+      end
+      object miCopyLastDecimalTimerBeforOpenHttpLink: TMenuItem
+        Caption = 'Copiar tempo (decimal) antes de abrir item externo'
+        Checked = True
       end
     end
   end
@@ -29586,6 +29622,10 @@ object frmMain: TfrmMain
       Caption = 'Delete item'
       OnClick = miItemPopupDeleteItemClick
     end
+    object miPinOutsideScrollBox: TMenuItem
+      Caption = 'Pin (OutsideScrollBox)'
+      OnClick = miPinOutsideScrollBoxClick
+    end
     object N1: TMenuItem
       Caption = '-'
     end
@@ -29598,13 +29638,22 @@ object frmMain: TfrmMain
     Top = 160
   end
   object pmRemoteItems: TPopupMenu
+    OnPopup = pmRemoteItemsPopup
     Left = 490
     Top = 202
+    object MenuItem1: TMenuItem
+      Caption = 'MenuItem1'
+    end
   end
   object TimerInitalizationAnimate: TTimer
     Interval = 5000
     OnTimer = TimerInitalizationAnimateTimer
     Left = 56
     Top = 160
+  end
+  object TimerSound: TTimer
+    OnTimer = TimerSoundTimer
+    Left = 136
+    Top = 312
   end
 end

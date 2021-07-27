@@ -23,18 +23,19 @@ private
   function GetMessageClient: TMoteMessageClient;
   procedure SetMessageClient(AValue: TMoteMessageClient);
   procedure MessageEvent(Sender: Tobject; const poMessage: TMoteMessage);
-  function ExtractTimes(const psString: string): TTimeEnginePairOfTimes;
+  class function ExtractTimes(const psString: string): TTimeEnginePairOfTimes;
   function GenerateTodayTimeText(const poItem: TItemDto): string;
   function GenerateTotalTimeText(const poItem: TItemDto): string;
   function GenerateEspecificDateTimeText(const poItem: TItemDto; const pdtEspecificDate: TDatetime; const psPrefix: string = #13#10): string;
   procedure StartIterval(const poItem: TItemDto);
   function TestToday(const psString: string): boolean;
   function TestDate(const psString: string; const pdtEspecificDate: TDatetime): boolean;
-  function GetTimeStringInExtendedFormat(const pdttime: TDateTime): Extended;
+  class function GetTimeStringInExtendedFormat(const pdttime: TDateTime): Extended;
 public
   property MessageClient: TMoteMessageClient read GetMessageClient write SetMessageClient;
   constructor Create;
   destructor Destroy; override;
+  class function GenerateTotalTimeTextFromStringList(sl: TStringList; const pbOnlyDecimalTimeFormat: boolean): string;
 end;
 
 implementation
@@ -62,7 +63,7 @@ begin
   end;
 end;
 
-function TTimeEngine.ExtractTimes(const psString: string): TTimeEnginePairOfTimes;
+class function TTimeEngine.ExtractTimes(const psString: string): TTimeEnginePairOfTimes;
 var
   nPos1, nPos2: SizeInt;
   sStart, sEnd: string;
@@ -132,7 +133,7 @@ begin
   result := Pos(sDate, psString) = 1;
 end;
 
-function TTimeEngine.GetTimeStringInExtendedFormat(const pdttime: TDateTime
+class function TTimeEngine.GetTimeStringInExtendedFormat(const pdttime: TDateTime
   ): Extended;
 var
   AYear, AMonth, ADay, AHour, AMinute, ASecond, AMilliSecond: Word;
@@ -226,13 +227,43 @@ begin
       dtSum := dtSum + dtLast;
     end;
 
-    if dtSum = TDateTime(0.0) then
+    if (dtSum = TDateTime(0.0)) and (pdtEspecificDate <> Date) then
       exit('');
 
     Result := psPrefix + sEspecificDate + ': ' + FormatDateTime('hh:mm', dtSum)+ ' (' + Format('%0.3f', [GetTimeStringInExtendedFormat(dtSum)])+')';
   finally
     sl.Free;
   end;
+end;
+
+
+class function TTimeEngine.GenerateTotalTimeTextFromStringList(sl: TStringList; const pbOnlyDecimalTimeFormat: boolean): string;
+var
+  i: integer;
+  dtSum: TDateTime;
+  s: string;
+  pair: TTimeEnginePairOfTimes;
+begin
+  dtSum := 0.0;
+  for i := 0 to sl.Count-1 do
+  begin
+    s := sl[i];
+    pair := ExtractTimes(s);
+    if pair.dtStart = 0.0 then
+      continue;
+    if pair.dtEnd = 0.0 then
+      pair.dtEnd := Time;
+    if pair.dtEnd > pair.dtStart then
+      dtSum := dtSum + (pair.dtEnd - pair.dtStart);
+  end;
+
+  if dtSum = TDateTime(0.0) then
+    exit('0');
+
+  if pbOnlyDecimalTimeFormat then
+    Result := Format('%0.3f', [GetTimeStringInExtendedFormat(dtSum)])
+  else
+    Result := FormatDateTime('hh:mm', dtSum)+ ' (' + Format('%0.3f', [GetTimeStringInExtendedFormat(dtSum)])+')';
 end;
 
 
